@@ -119,10 +119,7 @@ namespace input_reader {
         }
 
         for (auto& [bus, proper_stops] : busses) {
-            bool is_first = true;
-            for (auto& stop : proper_stops) {
-                catalogue.AddBus(bus, is_first, stop);
-            }
+            catalogue.AddBus(bus, proper_stops);
         }
     }
 }

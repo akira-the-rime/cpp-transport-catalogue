@@ -14,7 +14,7 @@ namespace stat_reader {
         void OutputBusInfo(const catalogue::TransportCatalogue& transport_catalogue,
             std::string_view query, std::string_view name, std::ostream& output) {
 
-            std::optional<const std::unordered_map<catalogue::Stop*, std::size_t>*> to_deem = transport_catalogue.ReturnStopsForBus(name);
+            std::optional<const std::deque<catalogue::Stop*>*> to_deem = transport_catalogue.ReturnStopsForBus(name);
 
             if (!to_deem.has_value()) {
                 output << query << " "s << name << ": not found" << std::endl;
@@ -22,25 +22,9 @@ namespace stat_reader {
             }
 
             output << query << " "s << name << ": ";
-            std::size_t sum = 0;
-            for (const auto& [_, amount] : *to_deem.value()) {
-                sum += amount;
-            }
-            output << sum << " stops on route, "s << to_deem.value()->size() << " unique stops, "s;
-
-            double distance = 0.0;
-            geo::Coordinates first, second;
-            bool is_first = true;
-
-            for (const auto& stop : transport_catalogue.ReturnStopsForBusWithDuplicates(name)) {
-                first = stop->coordinates;
-                if (!is_first) {
-                    distance += geo::ComputeDistance(first, second);
-                }
-                second = first;
-                is_first = false;
-            }
-            output << std::setprecision(6) << distance << " route length"s << std::endl;
+            output << to_deem.value()->size() << " stops on route, "s;
+            output << transport_catalogue.ReturnAmoutOfUniqueStopsForBus(name) << " unique stops, "s;
+            output << std::setprecision(6) << transport_catalogue.ComputeLength(name) << " route length"s << std::endl;
         }
 
         void OutputStopInfo(const catalogue::TransportCatalogue& transport_catalogue,
@@ -61,11 +45,11 @@ namespace stat_reader {
             output << query << " "s << name << ": buses "s;
             for (const auto& bus : *to_deem.value()) {
                 if (is_first) {
-                    output << bus->name_;
+                    output << bus->name;
                     is_first = false;
                     continue;
                 }
-                output << " "s << bus->name_;
+                output << " "s << bus->name;
             }
             output << std::endl;
         }
