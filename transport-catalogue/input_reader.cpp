@@ -105,6 +105,7 @@ namespace input_reader {
         using namespace std::literals;
         std::unordered_map<std::string_view, geo::Coordinates> stops;
         std::unordered_map<std::string_view, std::vector<std::string_view>> busses;
+
         for (auto& command : commands_) {
             if (std::string_view(command.command) == "Bus"sv) {
                 busses[command.id] = detail::ParseRoute(command.description);

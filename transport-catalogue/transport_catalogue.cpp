@@ -84,7 +84,7 @@ namespace catalogue {
 		return buses.at(bus).size();
 	}
 
-	// Перегрузка метода FindBus() для метода ReturnStopsForBus()
+	// РџРµСЂРµРіСЂСѓР·РєР° РјРµС‚РѕРґР° FindBus() РґР»СЏ РјРµС‚РѕРґР° ReturnStopsForBus()
 	std::optional<const Bus*> TransportCatalogue::FindBus(std::string_view bus) const {
 		auto it = std::find(deque_buses.begin(), deque_buses.end(), bus);
 		if (it != deque_buses.end()) {
