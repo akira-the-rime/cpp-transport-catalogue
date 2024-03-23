@@ -115,11 +115,11 @@ namespace input_reader {
         }
 
         for (auto& [name, coordinates] : stops) {
-            catalogue.AddStop(name, std::move(coordinates));
+            catalogue.AddStop(std::string(name), coordinates);
         }
 
         for (auto& [bus, proper_stops] : busses) {
-            catalogue.AddBus(bus, proper_stops);
+            catalogue.AddBus(std::string(bus), proper_stops);
         }
     }
 }

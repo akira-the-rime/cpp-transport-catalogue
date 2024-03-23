@@ -26,10 +26,9 @@ namespace catalogue {
 		}
 	};
 
-	// У меня получилось так, что Bus явл. оболочкой для переменной типа std::string, но при дальнейшей разработке программы сюда можно добавить новые переменные.
-    // А за хранение остановок, которые соотв. некому автобусу отвечают контейнеры в TransportCatalogue.
 	struct Bus {
 		std::string name;
+		std::deque<Stop*> buses_wd;
 
 		bool operator==(std::string_view rhs) const {
 			return std::string_view(name) == rhs;
@@ -49,22 +48,25 @@ namespace catalogue {
 
 	class TransportCatalogue {
 	public:
-		// Я выбрал такие параметры в AddBus() потому, что делаю их перемещение. В том месте, откуда я их взял, они больше не нужны.
-		void AddStop(std::string_view name, geo::Coordinates&& coordinates);
-		void AddBus(std::string_view bus, const std::vector<std::string_view>& proper_stops);
+		void AddStop(const std::string& name, const geo::Coordinates& coordinates);
+		void AddBus(const std::string& bus, const std::vector<std::string_view>& proper_stops);
+
 		Stop* FindStop(std::string_view stop);
+		Bus* FindBus(std::string_view bus);
+		
+		void OutputBusInfo(std::string_view query, std::string_view bus, std::ostream& output) const;
+		void OutputStopInfo(std::string_view query, std::string_view stop, std::ostream& output) const;
+	private:
 		std::size_t ReturnAmoutOfUniqueStopsForBus(std::string_view name) const;
+		std::optional<const Bus*> FindBus(std::string_view bus) const;
 		std::optional<const std::deque<Stop*>*> ReturnStopsForBus(std::string_view name) const;
 		std::optional<const std::set<Bus*, Compartor>*> ReturnBusesForStop(std::string_view name) const;
 		double ComputeLength(std::string_view name) const;
-	private:
+
 		std::deque<Stop> deque_stops;
 		std::deque<Bus> deque_buses;
 
 		std::unordered_map<std::string_view, std::set<Bus*, Compartor>> stops;
 		std::unordered_map<std::string_view, std::unordered_set<Stop*>> buses;  
-		// Оставил deque в buses_wd, так как в дальнейшем при разработке программы, возможно, придется добавлять новые значения в этот deque и ссылаться на них.
-		// Vector инвалидирует все указатели и ссылки на его элементы при добавлении объекта.
-		std::unordered_map<std::string_view, std::deque<Stop*>> buses_wd;
 	};
 }
