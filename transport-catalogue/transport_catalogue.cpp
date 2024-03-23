@@ -6,8 +6,8 @@
 #include "transport_catalogue.h"
 
 namespace catalogue {
-	void TransportCatalogue::AddStop(const std::string& name, const geo::Coordinates& coordinates) {
-		deque_stops.push_back({ name, coordinates });
+	void TransportCatalogue::AddStop(const std::string& stop, const geo::Coordinates& coordinates) {
+		deque_stops.push_back({ stop, coordinates });
 		stops[deque_stops.back().name];
 	}
 
@@ -80,11 +80,11 @@ namespace catalogue {
 		output << std::endl;
 	}
 
-	std::size_t TransportCatalogue::ReturnAmoutOfUniqueStopsForBus(std::string_view name) const {
-		return buses.at(name).size();
+	std::size_t TransportCatalogue::ReturnAmoutOfUniqueStopsForBus(std::string_view bus) const {
+		return buses.at(bus).size();
 	}
 
-	// ÐŸÐµÑ€ÐµÐ³Ñ€ÑƒÐ·ÐºÐ° Ð¼ÐµÑ‚Ð¾Ð´Ð° FindBus() Ð´Ð»Ñ Ð¼ÐµÑ‚Ð¾Ð´Ð° ReturnStopsForBus()
+	// Ïåðåãðóçêà ìåòîäà FindBus() äëÿ ìåòîäà ReturnStopsForBus()
 	std::optional<const Bus*> TransportCatalogue::FindBus(std::string_view bus) const {
 		auto it = std::find(deque_buses.begin(), deque_buses.end(), bus);
 		if (it != deque_buses.end()) {
@@ -93,27 +93,27 @@ namespace catalogue {
 		return std::nullopt;
 	}
 
-	std::optional<const std::deque<Stop*>*> TransportCatalogue::ReturnStopsForBus(std::string_view name) const {
-		std::optional<const Bus*> bus_to_process = FindBus(name);
+	std::optional<const std::deque<Stop*>*> TransportCatalogue::ReturnStopsForBus(std::string_view bus) const {
+		std::optional<const Bus*> bus_to_process = FindBus(bus);
 		if (!bus_to_process.has_value()) {
 			return std::nullopt;
 		}
 		return &bus_to_process.value()->buses_wd;
 	}
 
-	std::optional<const std::set<Bus*, Compartor>*> TransportCatalogue::ReturnBusesForStop(std::string_view name) const {
-		if (stops.count(name)) {
-			return &stops.at(name);
+	std::optional<const std::set<Bus*, Compartor>*> TransportCatalogue::ReturnBusesForStop(std::string_view stop) const {
+		if (stops.count(stop)) {
+			return &stops.at(stop);
 		}
 		return std::nullopt;
 	}
 
-	double TransportCatalogue::ComputeLength(std::string_view name) const {
+	double TransportCatalogue::ComputeLength(std::string_view bus) const {
 		double distance = 0.0;
 		geo::Coordinates first, second;
 
 		bool is_first = true;
-		for (const auto& stop : *ReturnStopsForBus(name).value()) {
+		for (const auto& stop : *ReturnStopsForBus(bus).value()) {
 			first = stop->coordinates;
 			if (!is_first) {
 				distance += geo::ComputeDistance(first, second);

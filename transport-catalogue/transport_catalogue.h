@@ -48,7 +48,7 @@ namespace catalogue {
 
 	class TransportCatalogue {
 	public:
-		void AddStop(const std::string& name, const geo::Coordinates& coordinates);
+		void AddStop(const std::string& stop, const geo::Coordinates& coordinates);
 		void AddBus(const std::string& bus, const std::vector<std::string_view>& proper_stops);
 
 		Stop* FindStop(std::string_view stop);
@@ -57,11 +57,11 @@ namespace catalogue {
 		void OutputBusInfo(std::string_view query, std::string_view bus, std::ostream& output) const;
 		void OutputStopInfo(std::string_view query, std::string_view stop, std::ostream& output) const;
 	private:
-		std::size_t ReturnAmoutOfUniqueStopsForBus(std::string_view name) const;
+		std::size_t ReturnAmoutOfUniqueStopsForBus(std::string_view bus) const;
 		std::optional<const Bus*> FindBus(std::string_view bus) const;
-		std::optional<const std::deque<Stop*>*> ReturnStopsForBus(std::string_view name) const;
-		std::optional<const std::set<Bus*, Compartor>*> ReturnBusesForStop(std::string_view name) const;
-		double ComputeLength(std::string_view name) const;
+		std::optional<const std::deque<Stop*>*> ReturnStopsForBus(std::string_view bus) const;
+		std::optional<const std::set<Bus*, Compartor>*> ReturnBusesForStop(std::string_view stop) const;
+		double ComputeLength(std::string_view bus) const;
 
 		std::deque<Stop> deque_stops;
 		std::deque<Bus> deque_buses;
