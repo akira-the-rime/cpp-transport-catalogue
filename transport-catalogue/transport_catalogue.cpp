@@ -31,41 +31,41 @@ namespace catalogue {
 		return &*std::find(deque_buses.begin(), deque_buses.end(), bus);
 	}
 
-	std::stringstream TransportCatalogue::GetBusInfo(std::string_view query, std::string_view bus) const {
+	std::stringstream TransportCatalogue::GetBusInfo(std::string_view bus) const {
 		using namespace std::literals;
 
 		std::stringstream output;
 		std::optional<const std::deque<catalogue::Stop*>*> to_deem = ReturnStopsForBus(bus);
 
 		if (!to_deem.has_value()) {
-			output << query << " "s << bus << ": not found"s;
+			output << "Bus "s << bus << ": not found"s;
 			return output;
 		}
 
-		output << query << " "s << bus << ": "s;
+		output << "Bus "s << bus << ": "s;
 		output << to_deem.value()->size() << " stops on route, "s;
 		output << ReturnAmoutOfUniqueStopsForBus(bus) << " unique stops, "s;
 		output << std::setprecision(6) << ComputeLength(bus) << " route length"s;
 		return output;
 	}
 
-	std::stringstream TransportCatalogue::GetStopInfo(std::string_view query, std::string_view stop) const {
+	std::stringstream TransportCatalogue::GetStopInfo(std::string_view stop) const {
 		using namespace std::literals;
 
 		std::stringstream output;
 		const std::optional<const std::set<catalogue::Bus*, catalogue::Compartor>*> to_deem = ReturnBusesForStop(stop);
 
 		if (!to_deem.has_value()) {
-			output << query << " "s << stop << ": not found"s;
+			output << "Stop "s << stop << ": not found"s;
 			return output;
 		}
 		else if (!to_deem.value()->size()) {
-			output << query << " "s << stop << ": no buses"s;
+			output << "Stop "s << stop << ": no buses"s;
 			return output;
 		}
 
 		bool is_first = true;
-		output << query << " "s << stop << ": buses "s;
+		output << "Stop "s << stop << ": buses "s;
 		for (const auto& bus : *to_deem.value()) {
 			if (is_first) {
 				output << bus->name;

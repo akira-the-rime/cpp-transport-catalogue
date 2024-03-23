@@ -18,16 +18,12 @@ namespace stat_reader {
         }
 
         if (query == "Bus"sv) {
-            std::stringstream to_output = transport_catalogue.GetBusInfo(query, name);
-            std::string read;
-            std::getline(to_output, read);
-            output << read << std::endl;
+            std::stringstream to_output = transport_catalogue.GetBusInfo(name);
+            output << to_output.str() << std::endl;
         }
         else {
-            std::stringstream to_output = transport_catalogue.GetStopInfo(query, name);
-            std::string read;
-            std::getline(to_output, read);
-            output << read << std::endl;
+            std::stringstream to_output = transport_catalogue.GetStopInfo(name);
+            output << to_output.str() << std::endl;
         }
     }
 }
