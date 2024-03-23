@@ -1,7 +1,5 @@
 #include <algorithm>
 #include <iomanip>
-#include <iostream>
-#include <vector>
 
 #include "transport_catalogue.h"
 
@@ -33,38 +31,37 @@ namespace catalogue {
 		return &*std::find(deque_buses.begin(), deque_buses.end(), bus);
 	}
 
-	void TransportCatalogue::OutputBusInfo(std::string_view query, 
-		std::string_view bus, 
-		std::ostream& output) const {
+	std::stringstream TransportCatalogue::OutputBusInfo(std::string_view query, std::string_view bus) const {
 		using namespace std::literals;
 
+		std::stringstream output;
 		std::optional<const std::deque<catalogue::Stop*>*> to_deem = ReturnStopsForBus(bus);
 
 		if (!to_deem.has_value()) {
-			output << query << " "s << bus << ": not found" << std::endl;
-			return;
+			output << query << " "s << bus << ": not found"s;
+			return output;
 		}
 
-		output << query << " "s << bus << ": ";
+		output << query << " "s << bus << ": "s;
 		output << to_deem.value()->size() << " stops on route, "s;
 		output << ReturnAmoutOfUniqueStopsForBus(bus) << " unique stops, "s;
-		output << std::setprecision(6) << ComputeLength(bus) << " route length"s << std::endl;
+		output << std::setprecision(6) << ComputeLength(bus) << " route length"s;
+		return output;
 	}
 
-	void TransportCatalogue::OutputStopInfo(std::string_view query, 
-		std::string_view stop, 
-		std::ostream& output) const {
+	std::stringstream TransportCatalogue::OutputStopInfo(std::string_view query, std::string_view stop) const {
 		using namespace std::literals;
 
+		std::stringstream output;
 		const std::optional<const std::set<catalogue::Bus*, catalogue::Compartor>*> to_deem = ReturnBusesForStop(stop);
 
 		if (!to_deem.has_value()) {
-			output << query << " "s << stop << ": not found" << std::endl;
-			return;
+			output << query << " "s << stop << ": not found"s;
+			return output;
 		}
 		else if (!to_deem.value()->size()) {
-			output << query << " "s << stop << ": no buses" << std::endl;
-			return;
+			output << query << " "s << stop << ": no buses"s;
+			return output;
 		}
 
 		bool is_first = true;
@@ -77,14 +74,13 @@ namespace catalogue {
 			}
 			output << " "s << bus->name;
 		}
-		output << std::endl;
+		return output;
 	}
 
 	std::size_t TransportCatalogue::ReturnAmoutOfUniqueStopsForBus(std::string_view bus) const {
 		return buses.at(bus).size();
 	}
 
-	// Перегрузка метода FindBus() для метода ReturnStopsForBus()
 	std::optional<const Bus*> TransportCatalogue::FindBus(std::string_view bus) const {
 		auto it = std::find(deque_buses.begin(), deque_buses.end(), bus);
 		if (it != deque_buses.end()) {

@@ -1,7 +1,5 @@
-#include <cstddef>
+#include <iostream>
 #include <numeric>
-#include <set>
-#include <string>
 
 #include "stat_reader.h"
 
@@ -20,10 +18,16 @@ namespace stat_reader {
         }
 
         if (query == "Bus"sv) {
-            transport_catalogue.OutputBusInfo(query, name, output);
+            std::stringstream to_output = transport_catalogue.OutputBusInfo(query, name);
+            std::string read;
+            std::getline(to_output, read);
+            output << read << std::endl;
         }
         else {
-            transport_catalogue.OutputStopInfo(query, name, output);
+            std::stringstream to_output = transport_catalogue.OutputStopInfo(query, name);
+            std::string read;
+            std::getline(to_output, read);
+            output << read << std::endl;
         }
     }
 }

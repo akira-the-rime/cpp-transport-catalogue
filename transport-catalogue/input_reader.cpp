@@ -1,12 +1,8 @@
-#include "input_reader.h"
-
 #include <algorithm>
-#include <cassert>
-#include <cstddef>
 #include <iterator>
-#include <unordered_map>
-#include <unordered_set>
 #include <utility>
+
+#include "input_reader.h"
 
 namespace input_reader {
     namespace detail {

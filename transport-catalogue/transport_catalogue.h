@@ -4,6 +4,7 @@
 #include <deque>
 #include <optional>
 #include <set>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -54,8 +55,8 @@ namespace catalogue {
 		Stop* FindStop(std::string_view stop);
 		Bus* FindBus(std::string_view bus);
 		
-		void OutputBusInfo(std::string_view query, std::string_view bus, std::ostream& output) const;
-		void OutputStopInfo(std::string_view query, std::string_view stop, std::ostream& output) const;
+		std::stringstream OutputBusInfo(std::string_view query, std::string_view bus) const;
+		std::stringstream OutputStopInfo(std::string_view query, std::string_view stop) const;
 	private:
 		std::size_t ReturnAmoutOfUniqueStopsForBus(std::string_view bus) const;
 		std::optional<const Bus*> FindBus(std::string_view bus) const;
