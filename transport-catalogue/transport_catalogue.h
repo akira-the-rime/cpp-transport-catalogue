@@ -55,8 +55,8 @@ namespace catalogue {
 		Stop* FindStop(std::string_view stop);
 		Bus* FindBus(std::string_view bus);
 		
-		std::stringstream OutputBusInfo(std::string_view query, std::string_view bus) const;
-		std::stringstream OutputStopInfo(std::string_view query, std::string_view stop) const;
+		std::stringstream GetBusInfo(std::string_view query, std::string_view bus) const;
+		std::stringstream GetStopInfo(std::string_view query, std::string_view stop) const;
 	private:
 		std::size_t ReturnAmoutOfUniqueStopsForBus(std::string_view bus) const;
 		std::optional<const Bus*> FindBus(std::string_view bus) const;

@@ -31,7 +31,7 @@ namespace catalogue {
 		return &*std::find(deque_buses.begin(), deque_buses.end(), bus);
 	}
 
-	std::stringstream TransportCatalogue::OutputBusInfo(std::string_view query, std::string_view bus) const {
+	std::stringstream TransportCatalogue::GetBusInfo(std::string_view query, std::string_view bus) const {
 		using namespace std::literals;
 
 		std::stringstream output;
@@ -49,7 +49,7 @@ namespace catalogue {
 		return output;
 	}
 
-	std::stringstream TransportCatalogue::OutputStopInfo(std::string_view query, std::string_view stop) const {
+	std::stringstream TransportCatalogue::GetStopInfo(std::string_view query, std::string_view stop) const {
 		using namespace std::literals;
 
 		std::stringstream output;
