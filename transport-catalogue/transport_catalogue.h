@@ -40,6 +40,22 @@ namespace catalogue {
 		}
 	};
 
+	struct BusInfo {
+		std::string_view name;
+		bool is_found = false;
+
+		std::size_t stops_on_route = 0;
+		std::size_t unique_stops = 0;
+		double route_length = 0.0;
+	};
+
+	struct StopInfo {
+		std::string_view name;
+		bool is_found = false;
+
+		std::vector<std::string_view> bus_names;
+	};
+
 	struct Compartor {
 		using is_transparent = std::false_type;
 		bool operator()(const Bus* lhs, const Bus* rhs) const {
@@ -55,8 +71,8 @@ namespace catalogue {
 		Stop* FindStop(std::string_view stop);
 		Bus* FindBus(std::string_view bus);
 		
-		std::stringstream GetBusInfo(std::string_view bus) const;
-		std::stringstream GetStopInfo(std::string_view stop) const;
+		const BusInfo GetBusInfo(std::string_view bus) const;
+		const StopInfo GetStopInfo(std::string_view stop) const;
 	private:
 		std::size_t ReturnAmoutOfUniqueStopsForBus(std::string_view bus) const;
 		std::optional<const Bus*> FindBus(std::string_view bus) const;

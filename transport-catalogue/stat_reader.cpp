@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <iostream>
 #include <numeric>
 
@@ -18,12 +19,41 @@ namespace stat_reader {
         }
 
         if (query == "Bus"sv) {
-            std::stringstream to_output = transport_catalogue.GetBusInfo(name);
-            output << to_output.str() << std::endl;
+            const catalogue::BusInfo to_output = transport_catalogue.GetBusInfo(name);
+
+            if (!to_output.is_found) {
+                output << "Bus "s << to_output.name << ": not found"s << std::endl;
+                return;
+            }
+
+            output << "Bus "s << to_output.name << ": "s;
+            output << to_output.stops_on_route << " stops on route, "s;
+            output << to_output.unique_stops << " unique stops, "s;
+            output << std::setprecision(6) << to_output.route_length << " route length"s << std::endl;
         }
         else {
-            std::stringstream to_output = transport_catalogue.GetStopInfo(name);
-            output << to_output.str() << std::endl;
+            const catalogue::StopInfo to_output = transport_catalogue.GetStopInfo(name);
+
+            if (!to_output.is_found) {
+                output << "Stop "s << to_output.name << ": not found"s << std::endl;
+                return;
+            }
+            else if (!to_output.bus_names.size()) {
+                output << "Stop "s << to_output.name << ": no buses"s << std::endl;
+                return;
+            }
+
+            bool is_first = true;
+            output << "Stop "s << to_output.name << ": buses "s;
+            for (const auto& bus : to_output.bus_names) {
+                if (is_first) {
+                    output << bus;
+                    is_first = false;
+                    continue;
+                }
+                output << " "s << bus;
+            }
+            output << std::endl;
         }
     }
 }
