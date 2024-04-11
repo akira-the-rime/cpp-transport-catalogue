@@ -4,12 +4,24 @@
 
 namespace catalogue {
 	void TransportCatalogue::AddStop(const std::string& stop, const geo::Coordinates& coordinates) {
-		deque_stops.push_back({ stop, coordinates });
+		deque_stops.emplace_back(stop, coordinates, std::unordered_map<std::string_view, std::size_t>{});
 		stops[deque_stops.back().name];
 	}
 
+	void TransportCatalogue::AddDestination(const std::string& stop, const std::unordered_map<std::string_view, std::size_t>& dst) {
+		Stop* stop_to_process = FindStop(stop);
+		for (const auto& [destination, length] : dst) {
+			Stop* retrieved_stop = FindStop(destination);
+			stop_to_process->destinations[retrieved_stop->name] = length;
+
+			if (!retrieved_stop->destinations.contains(stop_to_process->name)) {
+				retrieved_stop->destinations[stop_to_process->name] = length;
+			}
+		}
+	}
+
 	void TransportCatalogue::AddBus(const std::string& bus, const std::vector<std::string_view>& proper_stops) {
-		deque_buses.push_back({ bus, std::deque<Stop*>{} });
+		deque_buses.emplace_back(bus, std::deque<Stop*>{});
 
 		for (const auto& stop : proper_stops) {
 			Bus* bus_to_process = &deque_buses.back();
@@ -44,7 +56,11 @@ namespace catalogue {
 		to_output.name = bus;
 		to_output.stops_on_route = to_deem.value()->size();
 		to_output.unique_stops = ReturnAmoutOfUniqueStopsForBus(bus);
-		to_output.route_length = ComputeLength(bus);
+		auto distance = ComputeLengthAndCurvature(bus);
+
+		to_output.actual_distance = distance.first;
+		to_output.curvature = distance.second;
+
 		to_output.is_found = true;
 		return to_output;
 	}
@@ -94,25 +110,41 @@ namespace catalogue {
 	}
 
 	std::optional<const std::set<Bus*, Compartor>*> TransportCatalogue::ReturnBusesForStop(std::string_view stop) const {
-		if (stops.count(stop)) {
+		if (stops.contains(stop)) {
 			return &stops.at(stop);
 		}
 		return std::nullopt;
 	}
 
-	double TransportCatalogue::ComputeLength(std::string_view bus) const {
-		double distance = 0.0;
+	std::pair<std::size_t, double> TransportCatalogue::ComputeLengthAndCurvature(std::string_view bus) const {
+		double pure_distance = 0.0;
 		geo::Coordinates first, second;
 
 		bool is_first = true;
-		for (const auto& stop : *ReturnStopsForBus(bus).value()) {
+		std::optional<const std::deque<Stop*>*> stops = ReturnStopsForBus(bus).value();
+		for (const auto& stop : *stops.value()) {
 			first = stop->coordinates;
 			if (!is_first) {
-				distance += geo::ComputeDistance(first, second);
+				pure_distance += geo::ComputeDistance(first, second);
 			}
 			second = first;
 			is_first = false;
 		}
-		return distance;
+
+		std::size_t actual_distance = 0;
+
+		for (auto it = stops.value()->rbegin(); it != stops.value()->rend() - 1; ++it) {
+			if (it == stops.value()->rend() - 1) {
+				Stop* last_stop = *it;
+				actual_distance += last_stop->destinations.at(last_stop->name);
+				break;
+			}
+
+			Stop* current_stop = *it;
+			Stop* previous_stop = *(it + 1);
+			actual_distance += previous_stop->destinations.at(current_stop->name);
+		}
+
+		return { actual_distance, actual_distance / pure_distance };
 	}
 }

@@ -10,7 +10,7 @@ namespace stat_reader {
         std::ostream& output) {
         using namespace std::literals;
 
-        std::size_t pos = request.find_first_of(' ');
+        const std::size_t pos = request.find_first_of(' ');
         std::string_view query, name;
 
         if (pos + 1 != request.size()) {
@@ -29,7 +29,8 @@ namespace stat_reader {
             output << "Bus "s << to_output.name << ": "s;
             output << to_output.stops_on_route << " stops on route, "s;
             output << to_output.unique_stops << " unique stops, "s;
-            output << std::setprecision(6) << to_output.route_length << " route length"s << std::endl;
+            output << to_output.actual_distance << " route length, "s;
+            output << std::setprecision(6) << to_output.curvature <<  " curvature"s << std::endl;
         }
         else {
             const catalogue::StopInfo to_output = transport_catalogue.GetStopInfo(name);

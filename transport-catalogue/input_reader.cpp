@@ -88,6 +88,41 @@ namespace input_reader {
                     std::string(line.substr(not_space, colon_pos - not_space)),
                     std::string(line.substr(colon_pos + 1)) };
         }
+
+        std::pair<std::string_view, std::size_t> ParseDestination(std::string_view destination) {
+            auto m = destination.find('m');
+
+            std::size_t length = std::stoi(std::string(destination.substr(0, m)));
+            const std::string_view stop_name = destination.substr(m + 5, destination.size());
+
+            return { stop_name, length };
+        }
+
+        std::unordered_map<std::string_view, std::size_t> ParseDestinations(std::string_view str) {
+            std::unordered_map<std::string_view, std::size_t> to_return;
+
+            auto current_comma = str.find(',');
+            auto next_comma = str.find(',', current_comma + 1);
+
+            if (next_comma == std::string_view::npos) {
+                return {};
+            }
+
+            current_comma = next_comma;
+            while (true) {
+                next_comma = str.find(',', current_comma + 1);
+
+                if (next_comma == std::string_view::npos) {
+                    to_return.insert(ParseDestination(str.substr(current_comma + 2, str.size())));
+                    break;
+                }
+
+                to_return.insert(ParseDestination(str.substr(current_comma + 2, next_comma - current_comma - 2)));
+                current_comma = next_comma;
+            }
+
+            return to_return;
+        }
     }
 
     void InputReader::ParseLine(std::string_view line) {
@@ -100,22 +135,32 @@ namespace input_reader {
     void InputReader::ApplyCommands([[maybe_unused]] catalogue::TransportCatalogue& catalogue) const {
         using namespace std::literals;
         std::unordered_map<std::string_view, geo::Coordinates> stops;
+        std::unordered_map<std::string_view, std::unordered_map<std::string_view, std::size_t>> destinations;
         std::unordered_map<std::string_view, std::vector<std::string_view>> busses;
 
-        for (auto& command : commands_) {
+        for (const auto& command : commands_) {
             if (std::string_view(command.command) == "Bus"sv) {
                 busses[command.id] = detail::ParseRoute(command.description);
             }
             else {
                 stops[command.id] = detail::ParseCoordinates(command.description);
+                auto to_check = detail::ParseDestinations(command.description);
+
+                if (to_check.size()) {
+                    destinations[command.id] = std::move(to_check);
+                }
             }
         }
 
-        for (auto& [name, coordinates] : stops) {
-            catalogue.AddStop(std::string(name), coordinates);
+        for (const auto& [stop, coordinates] : stops) {
+            catalogue.AddStop(std::string(stop), coordinates);
         }
 
-        for (auto& [bus, proper_stops] : busses) {
+        for (const auto& [stop, dst] : destinations) {
+            catalogue.AddDestination(std::string(stop), dst);
+        }
+
+        for (const auto& [bus, proper_stops] : busses) {
             catalogue.AddBus(std::string(bus), proper_stops);
         }
     }

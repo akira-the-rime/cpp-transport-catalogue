@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <utility>
 
 #include "geo.h"
 
@@ -17,6 +18,7 @@ namespace catalogue {
 	struct Stop {
 		std::string name;
 		geo::Coordinates coordinates;
+		std::unordered_map<std::string_view, std::size_t> destinations;
 
 		bool operator==(std::string_view rhs) const {
 			return std::string_view(name) == rhs;
@@ -46,7 +48,8 @@ namespace catalogue {
 
 		std::size_t stops_on_route = 0;
 		std::size_t unique_stops = 0;
-		double route_length = 0.0;
+		std::size_t actual_distance = 0;
+		double curvature = 0.0;
 	};
 
 	struct StopInfo {
@@ -66,6 +69,7 @@ namespace catalogue {
 	class TransportCatalogue {
 	public:
 		void AddStop(const std::string& stop, const geo::Coordinates& coordinates);
+		void AddDestination(const std::string& stop, const std::unordered_map<std::string_view, std::size_t>& dst);
 		void AddBus(const std::string& bus, const std::vector<std::string_view>& proper_stops);
 
 		Stop* FindStop(std::string_view stop);
@@ -78,7 +82,7 @@ namespace catalogue {
 		std::optional<const Bus*> FindBus(std::string_view bus) const;
 		std::optional<const std::deque<Stop*>*> ReturnStopsForBus(std::string_view bus) const;
 		std::optional<const std::set<Bus*, Compartor>*> ReturnBusesForStop(std::string_view stop) const;
-		double ComputeLength(std::string_view bus) const;
+		std::pair<std::size_t, double> ComputeLengthAndCurvature(std::string_view bus) const;
 
 		std::deque<Stop> deque_stops;
 		std::deque<Bus> deque_buses;
