@@ -49,6 +49,7 @@ namespace catalogue {
 		std::size_t stops_on_route = 0;
 		std::size_t unique_stops = 0;
 		std::size_t actual_distance = 0;
+		double pure_distance = 0.0;
 		double curvature = 0.0;
 	};
 
@@ -82,7 +83,8 @@ namespace catalogue {
 		std::optional<const Bus*> FindBus(std::string_view bus) const;
 		std::optional<const std::deque<Stop*>*> ReturnStopsForBus(std::string_view bus) const;
 		std::optional<const std::set<Bus*, Compartor>*> ReturnBusesForStop(std::string_view stop) const;
-		std::pair<std::size_t, double> ComputeLengthAndCurvature(std::string_view bus) const;
+		size_t ComputeActualLength(std::string_view bus) const;
+		double ComputePureLength(std::string_view bus) const;
 
 		std::deque<Stop> deque_stops;
 		std::deque<Bus> deque_buses;
