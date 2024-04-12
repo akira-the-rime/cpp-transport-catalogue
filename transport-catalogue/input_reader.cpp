@@ -134,8 +134,7 @@ namespace input_reader {
 
     void InputReader::ApplyCommands([[maybe_unused]] catalogue::TransportCatalogue& catalogue) const {
         using namespace std::literals;
-        std::unordered_map<std::string_view, geo::Coordinates> stops;
-        std::unordered_map<std::string_view, std::unordered_map<std::string_view, std::size_t>> destinations;
+        std::unordered_map<std::string_view, std::unordered_map<std::string_view, std::size_t>> stops_and_destinations;
         std::unordered_map<std::string_view, std::vector<std::string_view>> busses;
 
         for (const auto& command : commands_) {
@@ -143,21 +142,17 @@ namespace input_reader {
                 busses[command.id] = detail::ParseRoute(command.description);
             }
             else {
-                stops[command.id] = detail::ParseCoordinates(command.description);
+                catalogue.AddStop(std::string(command.id), detail::ParseCoordinates(command.description));
                 auto to_check = detail::ParseDestinations(command.description);
 
                 if (to_check.size()) {
-                    destinations[command.id] = std::move(to_check);
+                    stops_and_destinations[command.id] = std::move(to_check);
                 }
             }
         }
 
-        for (const auto& [stop, coordinates] : stops) {
-            catalogue.AddStop(std::string(stop), coordinates);
-        }
-
-        for (const auto& [stop, dst] : destinations) {
-            catalogue.AddDestination(std::string(stop), dst);
+        for (const auto& [stop, destinations] : stops_and_destinations) {
+            catalogue.AddDestination(std::string(stop), destinations);
         }
 
         for (const auto& [bus, proper_stops] : busses) {

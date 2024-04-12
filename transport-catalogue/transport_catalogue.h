@@ -18,7 +18,6 @@ namespace catalogue {
 	struct Stop {
 		std::string name;
 		geo::Coordinates coordinates;
-		std::unordered_map<std::string_view, std::size_t> destinations;
 
 		bool operator==(std::string_view rhs) const {
 			return std::string_view(name) == rhs;
@@ -31,7 +30,7 @@ namespace catalogue {
 
 	struct Bus {
 		std::string name;
-		std::deque<Stop*> buses_wd;
+		std::vector<Stop*> buses_with_duplicates;
 
 		bool operator==(std::string_view rhs) const {
 			return std::string_view(name) == rhs;
@@ -81,7 +80,7 @@ namespace catalogue {
 	private:
 		std::size_t ReturnAmoutOfUniqueStopsForBus(std::string_view bus) const;
 		std::optional<const Bus*> FindBus(std::string_view bus) const;
-		std::optional<const std::deque<Stop*>*> ReturnStopsForBus(std::string_view bus) const;
+		std::optional<const std::vector<Stop*>*> ReturnStopsForBus(std::string_view bus) const;
 		std::optional<const std::set<Bus*, Compartor>*> ReturnBusesForStop(std::string_view stop) const;
 		size_t ComputeActualLength(std::string_view bus) const;
 		double ComputePureLength(std::string_view bus) const;
@@ -90,6 +89,7 @@ namespace catalogue {
 		std::deque<Bus> deque_buses;
 
 		std::unordered_map<std::string_view, std::set<Bus*, Compartor>> stops;
+		std::unordered_map<std::string_view, std::unordered_map<std::string_view, std::size_t>> destinations;
 		std::unordered_map<std::string_view, std::unordered_set<Stop*>> buses;  
 	};
 }

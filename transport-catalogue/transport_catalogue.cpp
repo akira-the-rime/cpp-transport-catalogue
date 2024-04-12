@@ -4,7 +4,7 @@
 
 namespace catalogue {
 	void TransportCatalogue::AddStop(const std::string& stop, const geo::Coordinates& coordinates) {
-		deque_stops.emplace_back(stop, coordinates, std::unordered_map<std::string_view, std::size_t>{});
+		deque_stops.emplace_back(stop, coordinates);
 		stops[deque_stops.back().name];
 	}
 
@@ -14,16 +14,16 @@ namespace catalogue {
 		Stop* stop_to_process = FindStop(stop);
 		for (const auto& [destination, length] : dst) {
 			Stop* retrieved_stop = FindStop(destination);
-			stop_to_process->destinations[retrieved_stop->name] = length;
+			destinations[stop_to_process->name][retrieved_stop->name] = length;
 
-			if (!retrieved_stop->destinations.contains(stop_to_process->name)) {
-				retrieved_stop->destinations[stop_to_process->name] = length;
+			if (!destinations[retrieved_stop->name].contains(stop_to_process->name)) {
+				destinations[retrieved_stop->name][stop_to_process->name] = length;
 			}
 		}
 	}
 
 	void TransportCatalogue::AddBus(const std::string& bus, const std::vector<std::string_view>& proper_stops) {
-		deque_buses.emplace_back(bus, std::deque<Stop*>{});
+		deque_buses.emplace_back(bus, std::vector<Stop*>{});
 
 		for (const auto& stop : proper_stops) {
 			Bus* bus_to_process = &deque_buses.back();
@@ -32,7 +32,7 @@ namespace catalogue {
 			Stop* stop_to_process = FindStop(stop);
 			buses[bus_to_process->name].insert(stop_to_process);
 
-			FindBus(bus)->buses_wd.push_back(stop_to_process);
+			FindBus(bus)->buses_with_duplicates.push_back(stop_to_process);
 		}
 	}
 
@@ -48,7 +48,7 @@ namespace catalogue {
 		using namespace std::literals;
 
 		BusInfo to_output;
-		std::optional<const std::deque<catalogue::Stop*>*> to_deem = ReturnStopsForBus(bus);
+		std::optional<const std::vector<catalogue::Stop*>*> to_deem = ReturnStopsForBus(bus);
 
 		if (!to_deem.has_value()) {
 			to_output.name = bus;
@@ -103,10 +103,10 @@ namespace catalogue {
 		return std::nullopt;
 	}
 
-	std::optional<const std::deque<Stop*>*> TransportCatalogue::ReturnStopsForBus(std::string_view bus) const {
+	std::optional<const std::vector<Stop*>*> TransportCatalogue::ReturnStopsForBus(std::string_view bus) const {
 		std::optional<const Bus*> bus_to_process = FindBus(bus);
 		if (bus_to_process.has_value()) {
-			return &bus_to_process.value()->buses_wd;
+			return &bus_to_process.value()->buses_with_duplicates;
 		}
 		return std::nullopt;
 	}
@@ -120,18 +120,18 @@ namespace catalogue {
 
 	std::size_t TransportCatalogue::ComputeActualLength(std::string_view bus) const {
 		std::size_t actual_distance = 0;
-		std::optional<const std::deque<Stop*>*> stops = ReturnStopsForBus(bus).value();
+		std::optional<const std::vector<Stop*>*> stops = ReturnStopsForBus(bus).value();
 
 		for (auto it = stops.value()->rbegin(); it != stops.value()->rend() - 1; ++it) {
 			if (it == stops.value()->rend() - 1) {
 				Stop* last_stop = *it;
-				actual_distance += last_stop->destinations.at(last_stop->name);
+				actual_distance += destinations.at(last_stop->name).at(last_stop->name);
 				break;
 			}
 
 			Stop* current_stop = *it;
 			Stop* previous_stop = *(it + 1);
-			actual_distance += previous_stop->destinations.at(current_stop->name);
+			actual_distance += destinations.at(previous_stop->name).at(current_stop->name);
 		}
 
 		return actual_distance;

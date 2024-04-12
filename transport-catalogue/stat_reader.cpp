@@ -5,20 +5,12 @@
 #include "stat_reader.h"
 
 namespace stat_reader {
-    void ParseAndPrintStat(const catalogue::TransportCatalogue& transport_catalogue,
-        std::string_view request,
-        std::ostream& output) {
+    namespace detail {
         using namespace std::literals;
 
-        const std::size_t pos = request.find_first_of(' ');
-        std::string_view query, name;
-
-        if (pos + 1 != request.size()) {
-            query = request.substr(0, pos);
-            name = request.substr(pos + 1, request.size() - pos);
-        }
-
-        if (query == "Bus"sv) {
+        void PrintBusInfo(const catalogue::TransportCatalogue& transport_catalogue,
+            std::string_view name,
+            std::ostream& output) {
             const catalogue::BusInfo to_output = transport_catalogue.GetBusInfo(name);
 
             if (!to_output.is_found) {
@@ -30,9 +22,12 @@ namespace stat_reader {
             output << to_output.stops_on_route << " stops on route, "s;
             output << to_output.unique_stops << " unique stops, "s;
             output << to_output.actual_distance << " route length, "s;
-            output << std::setprecision(6) << to_output.curvature <<  " curvature"s << std::endl;
+            output << std::setprecision(6) << to_output.curvature << " curvature"s << std::endl;
         }
-        else {
+
+        void PrintStopInfo(const catalogue::TransportCatalogue& transport_catalogue,
+            std::string_view name,
+            std::ostream& output) {
             const catalogue::StopInfo to_output = transport_catalogue.GetStopInfo(name);
 
             if (!to_output.is_found) {
@@ -55,6 +50,27 @@ namespace stat_reader {
                 output << " "s << bus;
             }
             output << std::endl;
+        }
+    }
+
+    void ParseAndPrintStat(const catalogue::TransportCatalogue& transport_catalogue,
+        std::string_view request,
+        std::ostream& output) {
+        using namespace std::literals;
+
+        const std::size_t pos = request.find_first_of(' ');
+        std::string_view query, name;
+
+        if (pos + 1 != request.size()) {
+            query = request.substr(0, pos);
+            name = request.substr(pos + 1, request.size() - pos);
+        }
+
+        if (query == "Bus"sv) {
+            detail::PrintBusInfo(transport_catalogue, name, output);
+        }
+        else {
+            detail::PrintStopInfo(transport_catalogue, name, output);
         }
     }
 }
