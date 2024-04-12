@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <deque>
+#include <functional>
 #include <optional>
 #include <set>
 #include <sstream>
@@ -66,6 +67,16 @@ namespace catalogue {
 		}
 	};
 
+	struct Hasher {
+		std::size_t operator()(const std::pair<std::string_view, std::string_view>& to_hash) const {
+			std::size_t first = sw_hasher(to_hash.first);
+			std::size_t second = sw_hasher(to_hash.second);
+			return first + second * 37;
+		}
+	private:
+		std::hash<std::string_view> sw_hasher;
+	};
+
 	class TransportCatalogue {
 	public:
 		void AddStop(const std::string& stop, const geo::Coordinates& coordinates);
@@ -89,7 +100,7 @@ namespace catalogue {
 		std::deque<Bus> deque_buses;
 
 		std::unordered_map<std::string_view, std::set<Bus*, Compartor>> stops;
-		std::unordered_map<std::string_view, std::unordered_map<std::string_view, std::size_t>> destinations;
+		std::unordered_map<std::pair<std::string_view, std::string_view>, std::size_t, Hasher> destinations;
 		std::unordered_map<std::string_view, std::unordered_set<Stop*>> buses;  
 	};
 }

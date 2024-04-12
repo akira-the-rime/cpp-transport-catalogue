@@ -8,16 +8,20 @@ namespace catalogue {
 		stops[deque_stops.back().name];
 	}
 
+	// Честно сказать, я не понимаю что тут можно упростить. 
+	// Этот метод отвечает за добавление путей назначения, относительно некой остановки.
+	// Мне кажется, что выносить цикл за пределы класса не очень хорошая идея.
+	// Либо я чего-то не понимаю.
 	void TransportCatalogue::AddDestination(const std::string& stop,
 		const std::unordered_map<std::string_view, std::size_t>& dst) {
 
 		Stop* stop_to_process = FindStop(stop);
 		for (const auto& [destination, length] : dst) {
 			Stop* retrieved_stop = FindStop(destination);
-			destinations[stop_to_process->name][retrieved_stop->name] = length;
+			destinations[{ stop_to_process->name, retrieved_stop->name }] = length;
 
-			if (!destinations[retrieved_stop->name].contains(stop_to_process->name)) {
-				destinations[retrieved_stop->name][stop_to_process->name] = length;
+			if (!destinations.contains(std::make_pair(retrieved_stop->name, stop_to_process->name))) {
+				destinations[{ retrieved_stop->name, stop_to_process->name }] = length;
 			}
 		}
 	}
@@ -123,15 +127,9 @@ namespace catalogue {
 		std::optional<const std::vector<Stop*>*> stops = ReturnStopsForBus(bus).value();
 
 		for (auto it = stops.value()->rbegin(); it != stops.value()->rend() - 1; ++it) {
-			if (it == stops.value()->rend() - 1) {
-				Stop* last_stop = *it;
-				actual_distance += destinations.at(last_stop->name).at(last_stop->name);
-				break;
-			}
-
 			Stop* current_stop = *it;
 			Stop* previous_stop = *(it + 1);
-			actual_distance += destinations.at(previous_stop->name).at(current_stop->name);
+			actual_distance += destinations.at(std::make_pair(previous_stop->name, current_stop->name));
 		}
 
 		return actual_distance;
