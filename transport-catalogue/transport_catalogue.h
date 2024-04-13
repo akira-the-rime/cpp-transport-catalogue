@@ -80,7 +80,7 @@ namespace catalogue {
 	class TransportCatalogue {
 	public:
 		void AddStop(const std::string& stop, const geo::Coordinates& coordinates);
-		void AddDestination(const std::string& stop, const std::unordered_map<std::string_view, std::size_t>& dst);
+		void AddDestination(const std::string& stop, const std::string& dst, const std::size_t length);
 		void AddBus(const std::string& bus, const std::vector<std::string_view>& proper_stops);
 
 		Stop* FindStop(std::string_view stop);

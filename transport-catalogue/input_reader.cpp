@@ -152,7 +152,9 @@ namespace input_reader {
         }
 
         for (const auto& [stop, destinations] : stops_and_destinations) {
-            catalogue.AddDestination(std::string(stop), destinations);
+            for (const auto& [destination, length] : destinations) {
+                catalogue.AddDestination(std::string(stop), std::string(destination), length);
+            }
         }
 
         for (const auto& [bus, proper_stops] : busses) {

@@ -8,21 +8,15 @@ namespace catalogue {
 		stops[deque_stops.back().name];
 	}
 
-	// Честно сказать, я не понимаю что тут можно упростить. 
-	// Этот метод отвечает за добавление путей назначения, относительно некой остановки.
-	// Мне кажется, что выносить цикл за пределы класса не очень хорошая идея.
-	// Либо я чего-то не понимаю.
-	void TransportCatalogue::AddDestination(const std::string& stop,
-		const std::unordered_map<std::string_view, std::size_t>& dst) {
+	void TransportCatalogue::AddDestination(const std::string& stop, const std::string& dst, 
+		const std::size_t length) {
 
 		Stop* stop_to_process = FindStop(stop);
-		for (const auto& [destination, length] : dst) {
-			Stop* retrieved_stop = FindStop(destination);
-			destinations[{ stop_to_process->name, retrieved_stop->name }] = length;
+		Stop* dst_to_process = FindStop(dst);
+		destinations[{ stop_to_process->name, dst_to_process->name }] = length;
 
-			if (!destinations.contains(std::make_pair(retrieved_stop->name, stop_to_process->name))) {
-				destinations[{ retrieved_stop->name, stop_to_process->name }] = length;
-			}
+		if (!destinations.contains(std::make_pair(dst_to_process->name, stop_to_process->name))) {
+			destinations[{ dst_to_process->name, stop_to_process->name }] = length;
 		}
 	}
 
