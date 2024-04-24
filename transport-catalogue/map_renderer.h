@@ -2,12 +2,10 @@
 
 #include <algorithm>
 #include <deque>
-#include <map>
 #include <set>
 
 #include "domain.h"
 #include "geo.h"
-#include "json.h"
 #include "svg.h"
 
 namespace map_renderer {
@@ -80,30 +78,10 @@ namespace map_renderer {
 
 // 
 // 
-//                                                                                    + --------------
-// ------------------------------------------------------------------------------------ Map Renderer +
+//                                                                                    + -----------------
+// ------------------------------------------------------------------------------------ Settings struct +
 
-	class MapRenderer final {
-	public:
-		MapRenderer() = default;
-        
-        void HandleRenderRequests(const json::Document& json_document);
-        svg::Document RenderMap();
-
-	private:
-        const svg::Color ChooseColor(const json::Node& to_process) const;
-        void ExtractSettings(const json::Document& json_document);
-
-        std::map<std::string_view, std::pair<std::vector<std::string_view>, bool>> 
-            MakeStopDatabase(const json::Document& json_document);
-
-        void MakeBusDatabase(std::map<std::string_view, std::pair<std::vector<std::string_view>, bool>> buses_and_stops);
-
-        void RenderLines(const detail::SphereProjector& sphere_projector);
-        void RenderLineText(const detail::SphereProjector& sphere_projector);
-        void RenderCircles(const detail::SphereProjector& sphere_projector);
-        void RenderCircleText(const detail::SphereProjector& sphere_projector);
-
+    struct Settings {
         double width = 0.0;
         double height = 0.0;
         double padding = 0.0;
@@ -115,12 +93,37 @@ namespace map_renderer {
         svg::Point stop_label_offset;
         svg::Color underlayer_color;
         double underlayer_width = 0.0;
+    };
+
+// 
+// 
+//                                                                                    + --------------
+// ------------------------------------------------------------------------------------ Map Renderer +
+	class MapRenderer final {
+	public:
+		MapRenderer() = default;
+        
+        void SetSettings(Settings&& settings);
+        void SetColorPalette(std::vector<svg::Color>&& color_palette);
+        void SetDequeStops(std::deque<domain::Stop>&& deque_stops);
+        void SetSortedStops(std::set<std::string_view>&& sorted_stops);
+        void SetRoutes(std::deque<std::pair<domain::Bus, bool>>&& routes);
+
+        svg::Document RenderMap();
+
+	private:
+        void RenderLines(const detail::SphereProjector& sphere_projector);
+        void RenderLineText(const detail::SphereProjector& sphere_projector);
+        void RenderCircles(const detail::SphereProjector& sphere_projector);
+        void RenderCircleText(const detail::SphereProjector& sphere_projector);
+
+        Settings settings_;
         std::vector<svg::Color> color_palette_;
 
         std::deque<domain::Stop> deque_stops_;
-        std::set<std::string_view> sorted_stops_;
+        std::set<std::string_view> sorted_stops_;    
         std::deque<std::pair<domain::Bus, bool>> routes_;
 
-		svg::Document svgs_to_be_rendered_;
+        svg::Document svgs_to_be_rendered_;
 	};
 } // namespace map_renderer

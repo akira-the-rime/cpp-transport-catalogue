@@ -59,7 +59,7 @@ namespace json {
         std::variant<std::nullptr_t, int, double, bool, std::string, Array, Dict> json_lib_;
     };
 
-    // РЇ РІР»РѕР¶РёР» РІ СЌС‚РѕС‚ Getter РґСѓС€Сѓ. РџРѕР¶Р°Р»СѓР№СЃС‚Р°, РїРѕР·РІРѕР»СЊС‚Рµ РµРјСѓ Р¶РёС‚СЊ xD
+    // Я вложил в этот Getter душу. Пожалуйста, позвольте ему жить xD
     template <class Type>
     const Type* Node::Getter() const {
         if (const Type* to_return = std::get_if<Type>(&json_lib_); to_return != nullptr) {
