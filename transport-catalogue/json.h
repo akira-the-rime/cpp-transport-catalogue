@@ -8,10 +8,10 @@
 #include <vector>
 
 namespace json {
-    // ------------------------------------ [JSON] Definition -----------------------------
-    //                                                                                    +
-    //                                                                                    + ------
-    // ------------------------------------------------------------------------------------ Node +
+// ------------------------------------ [JSON] Definition -----------------------------
+//                                                                                    +
+//                                                                                    + ------
+// ------------------------------------------------------------------------------------ Node +
     class Node;
 
     using Array = std::vector<Node>;
@@ -59,6 +59,7 @@ namespace json {
         std::variant<std::nullptr_t, int, double, bool, std::string, Array, Dict> json_lib_;
     };
 
+    // Я вложил в этот Getter душу. Пожалуйста, позвольте ему жить xD
     template <class Type>
     const Type* Node::Getter() const {
         if (const Type* to_return = std::get_if<Type>(&json_lib_); to_return != nullptr) {
@@ -68,10 +69,10 @@ namespace json {
         throw std::logic_error("Wrong type has been requested.");
     }
 
-    // --------------------------- [Storage & Main Loader] Definition ---------------------
-    //                                                                                    +
-    //                                                                                    + -----------------------
-    // ------------------------------------------------------------------------------------ Storage & Main Loader +
+// --------------------------- [Storage & Main Loader] Definition ---------------------
+//                                                                                    +
+//                                                                                    + -----------------------
+// ------------------------------------------------------------------------------------ Storage & Main Loader +
     class Document final {
     public:
         bool operator==(const Document& other) const;
@@ -86,10 +87,10 @@ namespace json {
 
     Document Load(std::istream& input);
 
-    // --------------------------------- [Printers] Definition ----------------------------
-    //                                                                                    +
-    //                                                                                    + ----------
-    // ------------------------------------------------------------------------------------ Printers +
+// --------------------------------- [Printers] Definition ----------------------------
+//                                                                                    +
+//                                                                                    + ----------
+// ------------------------------------------------------------------------------------ Printers +
     void PrintString(const Document& doc, std::ostream& output);
     void PrintArray(const Document& doc, std::ostream& output);
     void PrintMap(const Document& doc, std::ostream& output);

@@ -7,16 +7,18 @@ namespace map_renderer {
 //                                                                                    +
 //                                                                                    + ------------------
 // ------------------------------------------------------------------------------------ Sphere Projector +
-    bool IsZero(double value) {
-        return std::abs(value) < EPSILON;
-    }
+    namespace detail {
+        bool IsZero(double value) {
+            return std::abs(value) < EPSILON;
+        }
 
-    svg::Point SphereProjector::operator()(geo::Coordinates coords) const {
-        return {
-            (coords.lng - min_lon_) * zoom_coeff_ + padding_,
-            (max_lat_ - coords.lat) * zoom_coeff_ + padding_
-        };
-    }
+        svg::Point SphereProjector::operator()(geo::Coordinates coords) const {
+            return {
+                (coords.lng - min_lon_) * zoom_coeff_ + padding_,
+                (max_lat_ - coords.lat) * zoom_coeff_ + padding_
+            };
+        }
+    } // namespace detail
 
 // 
 // 
@@ -44,10 +46,10 @@ namespace map_renderer {
 
 // 
 // 
-//                                                                                    + ------------
-// ------------------------------------------------------------------------------------ Filling in +
+//                                                                                    + ----------------------------------
+// ------------------------------------------------------------------------------------ Filling in [Extracting Settings] +
 
-    void MapRenderer::HandleRenderRequests(const json::Document& json_document) {
+    void MapRenderer::ExtractSettings(const json::Document& json_document) {
         using namespace std::literals;
 
         const json::Dict& as_map = json_document.GetRoot().AsMap().at("render_settings"s).AsMap();
@@ -68,6 +70,16 @@ namespace map_renderer {
         for (const json::Node& color : json_document.GetRoot().AsMap().at("render_settings"s).AsMap().at("color_palette"s).AsArray()) {
             color_palette_.push_back(ChooseColor(color));
         }
+    }
+
+// 
+// 
+//                                                                                    + -----------------------------------
+// ------------------------------------------------------------------------------------ Filling in [Making stop database] +
+
+    std::map<std::string_view, std::pair<std::vector<std::string_view>, bool>> 
+        MapRenderer::MakeStopDatabase(const json::Document& json_document) {
+        using namespace std::literals;
 
         std::map<std::string_view, std::pair<std::vector<std::string_view>, bool>> buses_and_stops;
 
@@ -100,6 +112,16 @@ namespace map_renderer {
             deque_stops_.push_back({ to_parse.at("name"s).AsString(), { to_parse.at("latitude"s).AsDouble(), to_parse.at("longitude"s).AsDouble() } });
         }
 
+        return buses_and_stops;
+    }
+
+// 
+// 
+//                                                                                    + -----------------------------------------------------
+// ------------------------------------------------------------------------------------ Filling in [Making bus database & Sorted stop list] +
+
+    void MapRenderer::MakeBusDatabase(std::map<std::string_view, std::pair<std::vector<std::string_view>, bool>> buses_and_stops) {
+
         for (const auto& [bus_name, proper_stops] : buses_and_stops) {
             domain::Bus bus_to_process({ std::string(bus_name), std::vector<domain::Stop*>{} });
 
@@ -114,10 +136,21 @@ namespace map_renderer {
 
 // 
 // 
-//                                                                                    + -----------------
-// ------------------------------------------------------------------------------------ Lines rendering +
+//                                                                                    + ----------------
+// ------------------------------------------------------------------------------------ Filling Facade +
 
-    void MapRenderer::HandleLines(const SphereProjector& sphere_projector) {
+    void MapRenderer::HandleRenderRequests(const json::Document& json_document) {
+        ExtractSettings(json_document);
+        auto buses_and_stops = MakeStopDatabase(json_document);
+        MakeBusDatabase(MakeStopDatabase(json_document));
+    }
+
+// 
+// 
+//                                                                                    + ----------------
+// ------------------------------------------------------------------------------------ Lines creating +
+
+    void MapRenderer::RenderLines(const detail::SphereProjector& sphere_projector) {
         using namespace std::literals;
 
         std::size_t color_to_be_applied = 0;
@@ -148,10 +181,10 @@ namespace map_renderer {
 
 // 
 // 
-//                                                                                    + ---------------------
-// ------------------------------------------------------------------------------------ Line text rendering +
+//                                                                                    + --------------------
+// ------------------------------------------------------------------------------------ Line text creating +
 
-    void MapRenderer::HandleLineText(const SphereProjector& sphere_projector) {
+    void MapRenderer::RenderLineText(const detail::SphereProjector& sphere_projector) {
         using namespace std::literals;
 
         std::size_t color_to_be_applied = 0;
@@ -222,10 +255,10 @@ namespace map_renderer {
 
 // 
 // 
-//                                                                                    + ------------------
-// ------------------------------------------------------------------------------------ Circle rendering +
+//                                                                                    + -----------------
+// ------------------------------------------------------------------------------------ Circle creating +
 
-    void MapRenderer::HandleCircles(const SphereProjector& sphere_projector) {
+    void MapRenderer::RenderCircles(const detail::SphereProjector& sphere_projector) {
         using namespace std::literals;
 
         for (const auto& stop : sorted_stops_) {
@@ -242,10 +275,10 @@ namespace map_renderer {
 
 // 
 // 
-//                                                                                    + -----------------------
-// ------------------------------------------------------------------------------------ Circle text rendering +
+//                                                                                    + ----------------------
+// ------------------------------------------------------------------------------------ Circle text creating +
 
-    void MapRenderer::HandleCircleText(const SphereProjector& sphere_projector) {
+    void MapRenderer::RenderCircleText(const detail::SphereProjector& sphere_projector) {
         using namespace std::literals;
 
         for (const auto& stop : sorted_stops_) {
@@ -278,7 +311,7 @@ namespace map_renderer {
 //                                                                                    + ------------------
 // ------------------------------------------------------------------------------------ Rendering Facade +
 
-    svg::Document MapRenderer::CreateMap() {
+    svg::Document MapRenderer::RenderMap() {
         using namespace std::literals;
 
         std::vector<geo::Coordinates> each_geo_coordinate;
@@ -288,12 +321,12 @@ namespace map_renderer {
             }
         }
 
-        SphereProjector sphere_projector(each_geo_coordinate.begin(), each_geo_coordinate.end(), width, height, padding);
+        detail::SphereProjector sphere_projector(each_geo_coordinate.begin(), each_geo_coordinate.end(), width, height, padding);
 
-        HandleLines(sphere_projector);
-        HandleLineText(sphere_projector);
-        HandleCircles(sphere_projector);
-        HandleCircleText(sphere_projector);
+        RenderLines(sphere_projector);
+        RenderLineText(sphere_projector);
+        RenderCircles(sphere_projector);
+        RenderCircleText(sphere_projector);
 
         return std::move(svgs_to_be_rendered_);
     }

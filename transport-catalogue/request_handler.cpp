@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <sstream>
 
 #include "request_handler.h"
@@ -21,144 +20,106 @@ namespace request_handler {
 
 // 
 // 
-//                                                                                    + ------------
-// ------------------------------------------------------------------------------------ Filling in +
+//                                                                                    + ------------------------
+// ------------------------------------------------------------------------------------ Map Request Processing +
 
-	void RequestHandler::FillTransportCatalogue(const json::Document& document) {
+	json::Node RequestHandler::ProcessMapRequest(const json::Dict& to_parse, const json::Document& document) const {
 		using namespace std::literals;
 
-		std::unordered_map<std::string_view, json::Dict> stops_and_destinations;
-		std::unordered_map<std::string_view, std::vector<std::string_view>> buses;
+		renderer_->HandleRenderRequests(document);
+		svg::Document render_document = renderer_->RenderMap();
 
-		for (const auto& bus_or_stop : document.GetRoot().AsMap().at("base_requests"s).AsArray()) {
-			const json::Dict& to_parse = bus_or_stop.AsMap();
+		std::stringstream ss;
+		render_document.Render(ss);
 
-			if (to_parse.at("type"s) == "Bus"s) {
-				std::vector<std::string_view> proper_stops;
+		json::Dict to_make;
+		to_make.emplace("map"s, ss.str());
+		to_make.emplace("request_id"s, to_parse.at("id"s).AsInt());
 
-				if (to_parse.at("is_roundtrip"s).AsBool()) {
-					for (const auto& stop : to_parse.at("stops"s).AsArray()) {
-						proper_stops.push_back(stop.AsString());
-					}
-				}
-				else {
-					for (const auto& stop : to_parse.at("stops"s).AsArray()) {
-						proper_stops.push_back(stop.AsString());
-					}
-
-					for (auto it = to_parse.at("stops"s).AsArray().rbegin() + 1; it != to_parse.at("stops"s).AsArray().rend(); ++it) {
-						const std::string& stop = it->AsString();
-						proper_stops.push_back(stop);
-					}
-				}
-
-				buses[to_parse.at("name"s).AsString()] = proper_stops;
-				continue;
-			}
-
-			database_.AddStop(to_parse.at("name"s).AsString(), { to_parse.at("latitude"s).AsDouble(), to_parse.at("longitude"s).AsDouble() });
-
-			if (to_parse.contains("road_distances"s)) {
-				stops_and_destinations[to_parse.at("name"s).AsString()] =  to_parse.at("road_distances"s).AsMap();
-			}
-		}
-
-		for (const auto& [stop, destinations] : stops_and_destinations) {
-			for (const auto& [destination, length] : destinations) {
-				database_.AddDestination(std::string(stop), destination, length.AsInt());
-			}
-		}
-
-		for (const auto& [name, proper_stops] : buses) {
-			database_.AddBus(std::string(name), proper_stops);
-		}
+		return { to_make };
 	}
 
 // 
 // 
-//                                                                                    + ---------------------------
-// ------------------------------------------------------------------------------------ Output Request Processing +
+//                                                                                    + -------------------------
+// ------------------------------------------------------------------------------------ Bus Request Processing +
+
+	json::Node RequestHandler::ProcessBusRequest(const json::Dict& to_parse) const {
+		using namespace std::literals;
+
+		json::Dict to_make;
+		const domain::BusInfo to_output = database_.GetBusInfo(to_parse.at("name"s).AsString());
+
+		if (!to_output.is_found) {
+			to_make.emplace("error_message"s, "not found"s);
+			to_make.emplace("request_id"s, to_parse.at("id"s).AsInt());
+			return { to_make };
+		}
+
+		to_make.emplace("curvature"s, to_output.curvature);
+		to_make.emplace("route_length"s, static_cast<int>(to_output.actual_distance));
+		to_make.emplace("stop_count"s, static_cast<int>(to_output.stops_on_route));
+		to_make.emplace("unique_stop_count"s, static_cast<int>(to_output.unique_stops));
+
+		to_make.emplace("request_id"s, to_parse.at("id"s).AsInt());
+
+		return { to_make };
+	}
+
+// 
+// 
+//                                                                                    + ------------------------
+// ------------------------------------------------------------------------------------ Stop Request Processing +
+
+	json::Node RequestHandler::ProcessStopRequest(const json::Dict& to_parse) const {
+		using namespace std::literals;
+
+		json::Dict to_make;
+		const domain::StopInfo to_output = database_.GetStopInfo(to_parse.at("name"s).AsString());
+
+		if (!to_output.is_found) {
+			to_make.emplace("error_message"s, "not found"s);
+			to_make.emplace("request_id"s, to_parse.at("id"s).AsInt());
+			return { to_make };
+		}
+
+		json::Array buses;
+		for (const auto& bus : to_output.bus_names) {
+			buses.push_back(std::string(bus));
+		}
+
+		to_make.emplace("buses"s, buses);
+		to_make.emplace("request_id"s, to_parse.at("id"s).AsInt());
+
+		return { to_make };
+	}
+
+// 
+// 
+//                                                                                    + -----------------------
+// ------------------------------------------------------------------------------------ Output Request Facade +
 
     json::Document RequestHandler::ProcessRequests(const json::Document& document) const {
         using namespace std::literals;
-        std::stringstream ss;
-        ss << "["s;
 
-		bool is_first = true;
+		json::Array node_argument;
+
         for (const auto& bus_or_stop : document.GetRoot().AsMap().at("stat_requests"s).AsArray()) {
             const json::Dict& to_parse = bus_or_stop.AsMap();
 
 			if (to_parse.at("type"s) == "Map"s && renderer_) {
-				renderer_->HandleRenderRequests(document);
-				svg::Document render_document = renderer_->CreateMap();
-
-				ss << "{"s;
-				is_first = false;
-				ss << "\"request_id\" : "s << to_parse.at("id"s).AsInt() << ", "s;
-				ss << "\"map\" : "s;
-
-				std::stringstream render_ss;
-				render_document.Render(render_ss);
-				json::Document json_document(render_ss.str());
-
-				json::Print(json_document, ss);
-				ss << "}"s;
-
+				node_argument.push_back(ProcessMapRequest(to_parse, document));
 				continue;
 			}
 
-			if (is_first) {
-				ss << "{"s;
-				is_first = false;
-			}
-			else {
-				ss << ", {"s;
-			}
-
-			ss << "\"request_id\" : "s << to_parse.at("id"s).AsInt() << ", "s;
-
             if (to_parse.at("type"s) == "Bus"s) {
-                const domain::BusInfo to_output = database_.GetBusInfo(to_parse.at("name"s).AsString());
-
-				if (!to_output.is_found) {
-					ss << "\"error_message\" : \"not found\""s;
-					ss << "}"s;
-					continue;
-				}
-
-				ss << "\"curvature\" : "s << to_output.curvature << ", "s;
-				ss << "\"route_length\" : "s << to_output.actual_distance << ", "s;
-				ss << "\"stop_count\" : "s << to_output.stops_on_route << ", "s;
-				ss << "\"unique_stop_count\" : "s << to_output.unique_stops;
-				ss << "}"s;
-
+				node_argument.push_back(ProcessBusRequest(to_parse));
                 continue;
             }
             
-            domain::StopInfo to_output = database_.GetStopInfo(to_parse.at("name"s).AsString());
-
-			if (!to_output.is_found) {
-				ss << "\"error_message\" : \"not found\""s;
-				ss << "}"s;
-				continue;
-			}		
-			ss << "\"buses\" : ["s;
-
-			bool is_first_local = true;
-			for (const auto& bus : to_output.bus_names) {
-				if (is_first_local) {
-					ss << "\""s << bus << "\""s;
-					is_first_local = false;
-					continue;
-				}
-
-				ss << ", "s << "\""s << bus << "\""s;
-			}
-			ss << "]"s;
-			ss << "}"s;
+			node_argument.push_back(ProcessStopRequest(to_parse));
         }
-        ss << "]"s;
 
-		return json::Load(ss);
+		return json::Document(json::Node{ node_argument });
     }
 } // request_handler

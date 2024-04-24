@@ -275,4 +275,4 @@ namespace svg {
     private:
         std::vector<std::unique_ptr<Object>> svgs_;
     };
-}
+} // svg

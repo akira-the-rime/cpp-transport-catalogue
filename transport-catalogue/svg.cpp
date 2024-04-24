@@ -272,4 +272,4 @@ namespace svg {
         }
         out << "</svg>"sv;
     }
-}
+} // svg
