@@ -154,10 +154,10 @@ namespace json_reader {
 		renderer_.SetColorPalette(std::move(color_palette));
 	}
 
-	// 
-	// 
-	//                                                                                    + -----------------------------------------
-	// ------------------------------------------------------------------------------------ Renderer filling [Making stop database] +
+// 
+// 
+//                                                                                    + -----------------------------------------
+// ------------------------------------------------------------------------------------ Renderer filling [Making stop database] +
 
 	void JsonReader::MakeStopDatabase(const json::Document& json_document,
 		std::map<std::string_view, std::pair<std::vector<std::string_view>, bool>>& buses_and_stops,
@@ -195,10 +195,10 @@ namespace json_reader {
 		}
 	}
 
-	// 
-	// 
-	//                                                                                    + -----------------------------------------------------------
-	// ------------------------------------------------------------------------------------ Renderer filling [Making bus database & Sorted stop list] +
+// 
+// 
+//                                                                                    + -----------------------------------------------------------
+// ------------------------------------------------------------------------------------ Renderer filling [Making bus database & Sorted stop list] +
 
 	void JsonReader::MakeBusDatabase(std::map<std::string_view, std::pair<std::vector<std::string_view>, bool>>& buses_and_stops,
 		std::deque<domain::Stop>& deque_stops,
@@ -217,10 +217,10 @@ namespace json_reader {
 		}
 	}
 
-	// 
-	// 
-	//                                                                                    + -------------------------
-	// ------------------------------------------------------------------------------------ Renderer filling Facade +
+// 
+// 
+//                                                                                    + -------------------------
+// ------------------------------------------------------------------------------------ Renderer filling Facade +
 
 	void JsonReader::HandleRenderRequests(const json::Document& json_document) {
 		std::map<std::string_view, std::pair<std::vector<std::string_view>, bool>> buses_and_stops;

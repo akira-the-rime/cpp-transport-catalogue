@@ -103,6 +103,7 @@ namespace json {
 //                                                                                    +
 //                                                                                    + ---------
 // ------------------------------------------------------------------------------------ Builder +
+
     struct Afters {
         AfterKey after_key_;
         AfterValueAfterKey after_value_after_key_;
