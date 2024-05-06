@@ -45,13 +45,13 @@ namespace svg {
 //                                                                                    +
 //                                                                                    + --------------------
 // ------------------------------------------------------------------------------------ Auxiliary entities +
-    struct Rgb {
+    struct Rgb final {
         uint8_t red = 0;
         uint8_t green = 0;
         uint8_t blue = 0;
     };
 
-    struct Rgba {
+    struct Rgba final {
         uint8_t red = 0;
         uint8_t green = 0;
         uint8_t blue = 0;
@@ -62,7 +62,7 @@ namespace svg {
     inline const Color NoneColor{ "none"s };
 
     namespace detail {
-        struct Printer {
+        struct Printer final {
             std::ostream& os;
 
             std::ostream& operator()([[maybe_unused]] const std::monostate& none);
@@ -78,7 +78,7 @@ namespace svg {
 // 
 //                                                                                    + -------------------
 // ------------------------------------------------------------------------------------ Point coordinates +
-    struct Point { 
+    struct Point final { 
         Point() = default;
 
         Point(double x, double y) noexcept
@@ -115,7 +115,7 @@ namespace svg {
 //
 //                                                                                    + --------
 // ------------------------------------------------------------------------------------ Render +
-    struct RenderContext {
+    struct RenderContext final {
         RenderContext(std::ostream& out);
         RenderContext(std::ostream& out, int indent_step, int indent);
         RenderContext Indented() const;

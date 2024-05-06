@@ -17,7 +17,7 @@ namespace json_reader {
 //                                                                                    + -------------
 // ------------------------------------------------------------------------------------ Json Reader +
 
-	class JsonReader {
+	class JsonReader final {
 	public:
 		JsonReader(catalogue::TransportCatalogue& database, map_renderer::MapRenderer& renderer);
 		void HandleBaseRequests(const json::Document& document);

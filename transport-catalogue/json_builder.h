@@ -18,7 +18,7 @@ namespace json {
 //                                                      + -----------
 // ------------------------------------------------------ After Key +
 
-    class AfterKey {
+    class AfterKey final {
     public:
         KeyProcessor& Value(Node::Value value);
         KeyProcessor& StartDict();
@@ -35,7 +35,7 @@ namespace json {
 //                                                      + -------------------------
 // ------------------------------------------------------ After Value - After Key +
 
-    class KeyProcessor {
+    class KeyProcessor final {
     public:
         AfterKey& Key(std::string key);
         Builder& EndDict();
@@ -51,7 +51,7 @@ namespace json {
 //                                                      + -------------------
 // ------------------------------------------------------ After Start Array +
 
-    class AfterStartArray {
+    class AfterStartArray final {
     public:
         AfterStartArray& Value(Node::Value value);
         KeyProcessor& StartDict();
@@ -69,13 +69,13 @@ namespace json {
 //                                                      + ---------
 // ------------------------------------------------------ Builder +
 
-    struct Afters {
+    struct Afters final {
         AfterKey after_key_;
         KeyProcessor key_processor_;
         AfterStartArray after_start_array_;
     };
 
-    class Builder {
+    class Builder final {
     public:
         Builder();
         Node Build();
