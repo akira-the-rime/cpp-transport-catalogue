@@ -4,25 +4,24 @@
 #include "json.h"
 
 namespace json {
-// -------------------------------- [JSON Builder] Definition -------------------------
-//                                                                                    +
-//                                                                                    + -------------------
-// ------------------------------------------------------------------------------------ Auxiliary Classes +
+// ------------- [JSON Builder] Definition --------------
+//                                                      +
+//                                                      + -------------------
+// ------------------------------------------------------ Auxiliary Classes +
     
     class Builder;
-    class AfterValueAfterKey;
-    class AfterStartDict;
+    class KeyProcessor;
     class AfterStartArray;
-    class AfterValueStartArray;
 
 // 
 // 
-//                                                                                    + -----------
-// ------------------------------------------------------------------------------------ After Key +
+//                                                      + -----------
+// ------------------------------------------------------ After Key +
+
     class AfterKey {
     public:
-        AfterValueAfterKey& Value(Node::Value value);
-        AfterStartDict& StartDict();
+        KeyProcessor& Value(Node::Value value);
+        KeyProcessor& StartDict();
         AfterStartArray& StartArray();
 
         void SetBuilder(Builder* builder);
@@ -33,10 +32,10 @@ namespace json {
 
 // 
 // 
-//                                                                                    + -------------------------
-// ------------------------------------------------------------------------------------ After Value - After Key +
+//                                                      + -------------------------
+// ------------------------------------------------------ After Value - After Key +
 
-    class AfterValueAfterKey {
+    class KeyProcessor {
     public:
         AfterKey& Key(std::string key);
         Builder& EndDict();
@@ -49,29 +48,13 @@ namespace json {
 
 // 
 // 
-//                                                                                    + ------------------
-// ------------------------------------------------------------------------------------ After Start Dict +
-
-    class AfterStartDict {
-    public:
-        AfterKey& Key(std::string key);
-        Builder& EndDict();
-
-        void SetBuilder(Builder* builder);
-
-    private:
-        Builder* builder_ = nullptr;
-    };
-
-// 
-// 
-//                                                                                    + -------------------
-// ------------------------------------------------------------------------------------ After Start Array +
+//                                                      + -------------------
+// ------------------------------------------------------ After Start Array +
 
     class AfterStartArray {
     public:
-        AfterValueStartArray& Value(Node::Value value);
-        AfterStartDict& StartDict();
+        AfterStartArray& Value(Node::Value value);
+        KeyProcessor& StartDict();
         AfterStartArray& StartArray();
         Builder& EndArray();
 
@@ -81,35 +64,15 @@ namespace json {
         Builder* builder_ = nullptr;
     };
 
-// 
-// 
-//                                                                                    + ---------------------------------
-// ------------------------------------------------------------------------------------ After Value - After Start Array +
-
-    class AfterValueStartArray {
-    public:
-        AfterValueStartArray& Value(Node::Value value);
-        AfterStartDict& StartDict();
-        AfterStartArray& StartArray();
-        Builder& EndArray();
-
-        void SetBuilder(Builder* builder);
-
-    private:
-        Builder* builder_ = nullptr;
-    };
-
-// ------------------------------------- Builder Itself -------------------------------
-//                                                                                    +
-//                                                                                    + ---------
-// ------------------------------------------------------------------------------------ Builder +
+// ------------------- Builder Itself -------------------
+//                                                      +
+//                                                      + ---------
+// ------------------------------------------------------ Builder +
 
     struct Afters {
         AfterKey after_key_;
-        AfterValueAfterKey after_value_after_key_;
-        AfterStartDict after_start_dict_;
+        KeyProcessor key_processor_;
         AfterStartArray after_start_array_;
-        AfterValueStartArray after_value_start_key_;
     };
 
     class Builder {
@@ -118,7 +81,7 @@ namespace json {
         Node Build();
         AfterKey& Key(std::string key);
         Builder& Value(Node::Value value);
-        AfterStartDict& StartDict();
+        KeyProcessor& StartDict();
         AfterStartArray& StartArray();
         Builder& EndDict();
         Builder& EndArray();
