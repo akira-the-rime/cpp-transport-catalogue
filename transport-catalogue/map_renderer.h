@@ -81,7 +81,7 @@ namespace map_renderer {
 //                                                                                    + -----------------
 // ------------------------------------------------------------------------------------ Settings struct +
 
-    struct Settings {
+    struct Settings final {
         double width = 0.0;
         double height = 0.0;
         double padding = 0.0;

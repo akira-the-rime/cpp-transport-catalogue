@@ -14,6 +14,7 @@ namespace json {
     //                                                                                    +
     //                                                                                    + --------------------
     // ------------------------------------------------------------------------------------ "E"-part Processor +
+
         Node ProcessE(istream& input, const std::string& to_convert) {
             bool is_positive_mult;
             std::size_t multiplier = 1;
@@ -52,6 +53,7 @@ namespace json {
     // 
     //                                                                                    + ---------------------
     // ------------------------------------------------------------------------------------ Int & Double Loader +
+
         Node LoadIntAndDouble(istream& input) {
             bool is_integer = true;
             std::string to_convert;
@@ -104,6 +106,7 @@ namespace json {
     // 
     //                                                                                    + ----------------
     // ------------------------------------------------------------------------------------ Boolean Loader +
+
         Node LoadBool(istream& input) {
             std::string to_check;
             const std::size_t size_of_true = 4;
@@ -141,6 +144,7 @@ namespace json {
     // 
     //                                                                                    + ---------------
     // ------------------------------------------------------------------------------------ String Loader +
+
         Node LoadString(istream& input) {
             std::string line;
 
@@ -195,6 +199,7 @@ namespace json {
     // 
     //                                                                                    + ------------------
     // ------------------------------------------------------------------------------------ Nullptr_t Loader +
+
         Node LoadNull(istream& input) {
             std::string to_check;
             const std::size_t size_of_null = 4;
@@ -220,6 +225,7 @@ namespace json {
     // 
     //                                                                                    + --------------
     // ------------------------------------------------------------------------------------ Array Loader +
+
         Node LoadArray(istream& input) {
             Array result;
 
@@ -243,6 +249,7 @@ namespace json {
     // 
     //                                                                                    + -------------------
     // ------------------------------------------------------------------------------------ Dictionary Loader +
+
         Node LoadDict(std::istream& input) {
             Dict result;
 
@@ -277,6 +284,7 @@ namespace json {
     // 
     //                                                                                    + -------------
     // ------------------------------------------------------------------------------------ Node Loader +
+
         Node LoadNode(istream& input) {
             char c;
             input >> c;
@@ -311,6 +319,11 @@ namespace json {
 //                                                                                    +
 //                                                                                    + -------------------
 // ------------------------------------------------------------------------------------ Node Constructors +
+
+    Node::Node(Value&& other) noexcept
+        : json_lib_(std::move(other)) {
+    }
+
     Node::Node(int value) noexcept
         : json_lib_(value) {
     }
@@ -343,6 +356,7 @@ namespace json {
 // 
 //                                                                                    + --------------
 // ------------------------------------------------------------------------------------ "Is" methods +
+
     bool Node::IsInt() const noexcept {
         return std::holds_alternative<int>(json_lib_);
     }
@@ -379,6 +393,7 @@ namespace json {
 //
 //                                                                                    + --------------
 // ------------------------------------------------------------------------------------ "As" methods +
+
     int Node::AsInt() const {
         return *Getter<int>();
     }
@@ -414,8 +429,22 @@ namespace json {
 
 // 
 // 
+//                                                                                    + ---------
+// ------------------------------------------------------------------------------------ Getters +
+
+    const Node::Value& Node::GetValue() const noexcept {
+        return json_lib_;
+    }
+
+    Node::Value& Node::GetValue() noexcept {
+        return json_lib_;
+    }
+
+// 
+// 
 //                                                                                    + ----------------
 // ------------------------------------------------------------------------------------ Node operators +
+
     bool Node::operator==(const Node& other) const {
         return this->json_lib_ == other.json_lib_;
     }
@@ -428,6 +457,7 @@ namespace json {
 //                                                                                    +
 //                                                                                    + -----------------------
 // ------------------------------------------------------------------------------------ Storage & Main Loader +
+
     Document::Document(Node root)
         : root_(std::move(root)) {
     }
@@ -444,6 +474,7 @@ namespace json {
 // 
 //                                                                                    + --------------------
 // ------------------------------------------------------------------------------------ Document operators +
+
     bool Document::operator==(const Document& other) const {
         return this->root_ == other.root_;
     }
@@ -456,6 +487,7 @@ namespace json {
 //                                                                                    +
 //                                                                                    + ----------------
 // ------------------------------------------------------------------------------------ String printer +
+
     void PrintString(const Document& doc, std::ostream& output) {
         output << "\"";
 
@@ -493,6 +525,7 @@ namespace json {
 // 
 //                                                                                    + ---------------
 // ------------------------------------------------------------------------------------ Array printer +
+
     void PrintArray(const Document& doc, std::ostream& output) {
         output << "["s;
 
@@ -516,6 +549,7 @@ namespace json {
 // 
 //                                                                                    + --------------------
 // ------------------------------------------------------------------------------------ Dictionary printer +
+
     void PrintMap(const Document& doc, std::ostream& output) {
         output << "{ "s << std::endl;
 
@@ -548,6 +582,7 @@ namespace json {
 // 
 //                                                                                    + -----------------------
 // ------------------------------------------------------------------------------------ Options to be printed +
+
     void Print(const Document& doc, std::ostream& output) {
         if (doc.GetRoot().IsInt()) {
             output << doc.GetRoot().AsInt();

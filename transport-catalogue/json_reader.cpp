@@ -1,5 +1,4 @@
 #include <sstream>
-
 #include "json_reader.h"
 
 namespace json_reader {
@@ -244,7 +243,7 @@ namespace json_reader {
 //                                                                                    + -----------------------------
 // ------------------------------------------------------------------------------------ Stat Request Map processing +
 
-	json::Node JsonReader::ProcessMapRequest(const json::Dict& to_parse) const {
+	void JsonReader::ProcessMapRequest(const json::Dict& to_parse, json::Builder& builder) const {
 		using namespace std::literals;
 
 		svg::Document render_document = renderer_.RenderMap();
@@ -252,11 +251,9 @@ namespace json_reader {
 		std::stringstream ss;
 		render_document.Render(ss);
 
-		json::Dict to_make;
-		to_make.emplace("map"s, ss.str());
-		to_make.emplace("request_id"s, to_parse.at("id"s).AsInt());
-
-		return { to_make };
+		builder.StartDict().Key("map"s).Value(ss.str())
+			.Key("request_id"s).Value(to_parse.at("id"s).AsInt())
+			.EndDict();
 	}
 
 // 
@@ -264,26 +261,24 @@ namespace json_reader {
 //                                                                                    + -----------------------------
 // ------------------------------------------------------------------------------------ Stat Request Bus processing +
 
-	json::Node JsonReader::ProcessBusRequest(const json::Dict& to_parse) const {
+	void JsonReader::ProcessBusRequest(const json::Dict& to_parse, json::Builder& builder) const {
 		using namespace std::literals;
 
-		json::Dict to_make;
 		const domain::BusInfo to_output = database_.GetBusInfo(to_parse.at("name"s).AsString());
 
 		if (!to_output.is_found) {
-			to_make.emplace("error_message"s, "not found"s);
-			to_make.emplace("request_id"s, to_parse.at("id"s).AsInt());
-			return { to_make };
+			builder.StartDict().Key("error_message"s).Value("not found"s)
+				.Key("request_id"s).Value(to_parse.at("id"s).AsInt())
+				.EndDict();
+			return;
 		}
 
-		to_make.emplace("curvature"s, to_output.curvature);
-		to_make.emplace("route_length"s, static_cast<int>(to_output.actual_distance));
-		to_make.emplace("stop_count"s, static_cast<int>(to_output.stops_on_route));
-		to_make.emplace("unique_stop_count"s, static_cast<int>(to_output.unique_stops));
-
-		to_make.emplace("request_id"s, to_parse.at("id"s).AsInt());
-
-		return { to_make };
+		builder.StartDict().Key("curvature"s).Value(to_output.curvature)
+			.Key("route_length"s).Value(static_cast<int>(to_output.actual_distance))
+			.Key("stop_count"s).Value(static_cast<int>(to_output.stops_on_route))
+			.Key("unique_stop_count"s).Value(static_cast<int>(to_output.unique_stops))
+			.Key("request_id"s).Value(to_parse.at("id"s).AsInt())
+			.EndDict();
 	}
 
 // 
@@ -291,16 +286,17 @@ namespace json_reader {
 //                                                                                    + ------------------------------
 // ------------------------------------------------------------------------------------ Stat Request Stop processing +
 
-	json::Node JsonReader::ProcessStopRequest(const json::Dict& to_parse) const {
+	void JsonReader::ProcessStopRequest(const json::Dict& to_parse, json::Builder& builder) const {
 		using namespace std::literals;
 
 		json::Dict to_make;
 		const domain::StopInfo to_output = database_.GetStopInfo(to_parse.at("name"s).AsString());
 
 		if (!to_output.is_found) {
-			to_make.emplace("error_message"s, "not found"s);
-			to_make.emplace("request_id"s, to_parse.at("id"s).AsInt());
-			return { to_make };
+			builder.StartDict().Key("error_message"s).Value("not found"s)
+				.Key("request_id"s).Value(to_parse.at("id"s).AsInt())
+				.EndDict();
+			return;
 		}
 
 		json::Array buses;
@@ -308,10 +304,9 @@ namespace json_reader {
 			buses.push_back(std::string(bus));
 		}
 
-		to_make.emplace("buses"s, buses);
-		to_make.emplace("request_id"s, to_parse.at("id"s).AsInt());
-
-		return { to_make };
+		builder.StartDict().Key("buses"s).Value(buses)
+			.Key("request_id"s).Value(to_parse.at("id"s).AsInt())
+			.EndDict();
 	}
 
 // 
@@ -321,25 +316,26 @@ namespace json_reader {
 
 	json::Document JsonReader::HandleStatRequests(const json::Document& document) const {
 		using namespace std::literals;
-
-		json::Array node_argument;
+		json::Builder builder;
+		builder.StartArray();
 
 		for (const auto& bus_or_stop : document.GetRoot().AsMap().at("stat_requests"s).AsArray()) {
 			const json::Dict& to_parse = bus_or_stop.AsMap();
 
+			
 			if (to_parse.at("type"s) == "Map"s) {
-				node_argument.push_back(ProcessMapRequest(to_parse));
+				ProcessMapRequest(to_parse, builder);
 				continue;
 			}
 
 			if (to_parse.at("type"s) == "Bus"s) {
-				node_argument.push_back(ProcessBusRequest(to_parse));
+				ProcessBusRequest(to_parse, builder);
 				continue;
 			}
 
-			node_argument.push_back(ProcessStopRequest(to_parse));
+			ProcessStopRequest(to_parse, builder);
 		}
 
-		return json::Document(json::Node{ node_argument });
+		return json::Document(builder.EndArray().Build());
 	}
 } // namespace input_reader

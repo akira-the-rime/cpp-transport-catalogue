@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "json.h"
+#include "json_builder.h"
 #include "map_renderer.h"
 #include "svg.h"
 #include "transport_catalogue.h"
@@ -43,9 +44,9 @@ namespace json_reader {
 			std::set<std::string_view>& sorted_stops,
 			std::deque<std::pair<domain::Bus, bool>>& routes);
 
-		json::Node ProcessMapRequest(const json::Dict& to_parse) const;
-		json::Node ProcessBusRequest(const json::Dict& to_parse) const;
-		json::Node ProcessStopRequest(const json::Dict& to_parse) const;
+		void ProcessMapRequest(const json::Dict& to_parse, json::Builder& builder) const;
+		void ProcessBusRequest(const json::Dict& to_parse, json::Builder& builder) const;
+		void ProcessStopRequest(const json::Dict& to_parse, json::Builder& builder) const;
 		
 		catalogue::TransportCatalogue& database_;
 		map_renderer::MapRenderer& renderer_;

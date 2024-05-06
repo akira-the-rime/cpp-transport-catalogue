@@ -24,10 +24,14 @@ namespace json {
 
     class Node final {
     public:
+        using Value = std::variant<std::nullptr_t, int, double, bool, std::string, Array, Dict>;
+
         bool operator==(const Node& other) const;
         bool operator!=(const Node& other) const;
 
         Node() = default;
+        Node(Value&& other) noexcept;
+
         Node(int value) noexcept;
         Node(double value) noexcept;
         Node(bool boolean) noexcept;
@@ -52,11 +56,14 @@ namespace json {
         const Array& AsArray() const;
         const Dict& AsMap() const;
 
+        const Value& GetValue() const noexcept;
+        Value& GetValue() noexcept;
+
     private:
         template <class Type>
         const Type* Getter() const;
 
-        std::variant<std::nullptr_t, int, double, bool, std::string, Array, Dict> json_lib_;
+        Value json_lib_;
     };
 
     template <class Type>
@@ -72,6 +79,7 @@ namespace json {
 //                                                                                    +
 //                                                                                    + -----------------------
 // ------------------------------------------------------------------------------------ Storage & Main Loader +
+
     class Document final {
     public:
         bool operator==(const Document& other) const;
@@ -90,6 +98,7 @@ namespace json {
 //                                                                                    +
 //                                                                                    + ----------
 // ------------------------------------------------------------------------------------ Printers +
+
     void PrintString(const Document& doc, std::ostream& output);
     void PrintArray(const Document& doc, std::ostream& output);
     void PrintMap(const Document& doc, std::ostream& output);
