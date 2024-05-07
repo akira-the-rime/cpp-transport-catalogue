@@ -81,9 +81,9 @@ namespace json {
 //                                                      + -----------------
 // ------------------------------------------------------ [Key] : [Value] +
 
-	using namespace std::literals;
-
 	Builder::AfterKey& Builder::Key(std::string key) {
+		using namespace std::literals;
+
 		Node::Value& host_value = GetCurrentValue();
 
 		if (!std::holds_alternative<Dict>(host_value)) {
@@ -130,6 +130,8 @@ namespace json {
 // ------------------------------------------------------ Enders +
 
 	Builder& Builder::EndDict() {
+		using namespace std::literals;
+
 		if (!std::holds_alternative<Dict>(GetCurrentValue())) {
 			throw std::logic_error("EndDict() has been called outside a dict"s);
 		}
@@ -139,6 +141,8 @@ namespace json {
 	}
 
 	Builder& Builder::EndArray() {
+		using namespace std::literals;
+
 		if (!std::holds_alternative<Array>(GetCurrentValue())) {
 			throw std::logic_error("EndDict() has been called outside an array"s);
 		}
@@ -153,6 +157,8 @@ namespace json {
 // ------------------------------------------------------ Builder & Getter +
 
 	Node Builder::Build() {
+		using namespace std::literals;
+
 		if (!nodes_stack_.empty()) {
 			throw std::logic_error("Attempt to build JSON which isn't finalized"s);
 		}
@@ -179,6 +185,8 @@ namespace json {
 	// When nullptr (default) is in the scope, first call or dict Value() are expected
 
 	Node::Value& Builder::GetCurrentValue() {
+		using namespace std::literals;
+
 		if (nodes_stack_.empty()) {
 			throw std::logic_error("Attempt to change a finalized JSON"s);
 		}
@@ -191,6 +199,8 @@ namespace json {
 	}
 
 	void Builder::AssertNewObjectContext() const {
+		using namespace std::literals;
+
 		if (!std::holds_alternative<std::nullptr_t>(GetCurrentValue())) {
 			throw std::logic_error("A new object has been created in the wrong context"s);
 		}
