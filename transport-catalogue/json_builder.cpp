@@ -8,22 +8,22 @@ namespace json {
 //                                                      + -------------------------------
 // ------------------------------------------------------ Auxiliary Classes [After Key] +
 
-	KeyProcessor& AfterKey::Value(Node::Value value) {
+	Builder::KeyProcessor& Builder::AfterKey::Value(Node::Value value) {
 			builder_->Value(std::move(value));
 			return builder_->GetAfters()->key_processor_;
 	}
 
-	KeyProcessor& AfterKey::StartDict() {
+	Builder::KeyProcessor& Builder::AfterKey::StartDict() {
 		builder_->StartDict();
 		return builder_->GetAfters()->key_processor_;
 	}
 
-	AfterStartArray& AfterKey::StartArray() {
+	Builder::AfterStartArray& Builder::AfterKey::StartArray() {
 		builder_->StartArray();
 		return builder_->GetAfters()->after_start_array_;
 	}
 
-	void AfterKey::SetBuilder(Builder* builder) {
+	void Builder::AfterKey::SetBuilder(Builder* builder) {
 		builder_ = builder;
 	}
 
@@ -32,17 +32,17 @@ namespace json {
 //                                                      + ---------------
 // ------------------------------------------------------ Key Processor +
 
-	AfterKey& KeyProcessor::Key(std::string key) {
+	Builder::AfterKey& Builder::KeyProcessor::Key(std::string key) {
 		builder_->Key(std::move(key));
 		return builder_->GetAfters()->after_key_;
 	}
 
-	Builder& KeyProcessor::EndDict() {
+	Builder& Builder::KeyProcessor::EndDict() {
 		builder_->EndDict();
 		return *builder_;
 	}
 
-	void KeyProcessor::SetBuilder(Builder* builder) {
+	void Builder::KeyProcessor::SetBuilder(Builder* builder) {
 		builder_ = builder;
 	}
 	
@@ -51,27 +51,27 @@ namespace json {
 //                                                      + -------------------
 // ------------------------------------------------------ After Start Array +
 
-	AfterStartArray& AfterStartArray::Value(Node::Value value) {
+	Builder::AfterStartArray& Builder::AfterStartArray::Value(Node::Value value) {
 		builder_->Value(std::move(value));
 		return builder_->GetAfters()->after_start_array_;
 	}
 
-	KeyProcessor& AfterStartArray::StartDict() {
+	Builder::KeyProcessor& Builder::AfterStartArray::StartDict() {
 		builder_->StartDict();
 		return builder_->GetAfters()->key_processor_;
 	}
 
-	AfterStartArray& AfterStartArray::StartArray() {
+	Builder::AfterStartArray& Builder::AfterStartArray::StartArray() {
 		builder_->StartArray();
 		return builder_->GetAfters()->after_start_array_;
 	}
 
-	Builder& AfterStartArray::EndArray() {
+	Builder& Builder::AfterStartArray::EndArray() {
 		builder_->EndArray();
 		return *builder_;
 	}
 
-	void AfterStartArray::SetBuilder(Builder* builder) {
+	void Builder::AfterStartArray::SetBuilder(Builder* builder) {
 		builder_ = builder;
 	}
 
@@ -83,7 +83,7 @@ namespace json {
 
 	using namespace std::literals;
 
-	AfterKey& Builder::Key(std::string key) {
+	Builder::AfterKey& Builder::Key(std::string key) {
 		Node::Value& host_value = GetCurrentValue();
 
 		if (!std::holds_alternative<Dict>(host_value)) {
@@ -104,7 +104,7 @@ namespace json {
 //                                                       + ----------
 // ------------------------------------------------------ Starters +
 
-	KeyProcessor& Builder::StartDict() {
+	Builder::KeyProcessor& Builder::StartDict() {
 		if (!afters_are_initialized_) {
 			InitializeAfters();
 			afters_are_initialized_ = true;
@@ -114,7 +114,7 @@ namespace json {
 		return afters_.key_processor_;
 	}
 
-	AfterStartArray& Builder::StartArray() {
+	Builder::AfterStartArray& Builder::StartArray() {
 		if (!afters_are_initialized_) {
 			InitializeAfters();
 			afters_are_initialized_ = true;
@@ -160,7 +160,7 @@ namespace json {
 		return std::move(root_);
 	}
 
-	Afters* Builder::GetAfters() {
+	Builder::Afters* Builder::GetAfters() {
 		return &afters_;
 	}
 

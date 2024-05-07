@@ -6,76 +6,76 @@
 namespace json {
 // ------------- [JSON Builder] Definition --------------
 //                                                      +
-//                                                      + -------------------
-// ------------------------------------------------------ Auxiliary Classes +
-    
-    class Builder;
-    class KeyProcessor;
-    class AfterStartArray;
+//                                                      + ----------------
+// ------------------------------------------------------ Builder Itself +
+
+    class Builder final {
+    private:
+        class KeyProcessor;
+        class AfterStartArray;
 
 // 
 // 
 //                                                      + -----------
 // ------------------------------------------------------ After Key +
 
-    class AfterKey final {
-    public:
-        KeyProcessor& Value(Node::Value value);
-        KeyProcessor& StartDict();
-        AfterStartArray& StartArray();
+        class AfterKey final {
+        public:
+            KeyProcessor& Value(Node::Value value);
+            KeyProcessor& StartDict();
+            AfterStartArray& StartArray();
 
-        void SetBuilder(Builder* builder);
+            void SetBuilder(Builder* builder);
 
-    private:
-        Builder* builder_ = nullptr;
-    };
+        private:
+            Builder* builder_ = nullptr;
+        };
 
 // 
 // 
-//                                                      + -------------------------
-// ------------------------------------------------------ After Value - After Key +
+//                                                      + ---------------
+// ------------------------------------------------------ Key Processor +
 
-    class KeyProcessor final {
-    public:
-        AfterKey& Key(std::string key);
-        Builder& EndDict();
+        class KeyProcessor final {
+        public:
+            AfterKey& Key(std::string key);
+            Builder& EndDict();
 
-        void SetBuilder(Builder* builder);
+            void SetBuilder(Builder* builder);
 
-    private:
-        Builder* builder_ = nullptr;
-    };
+        private:
+            Builder* builder_ = nullptr;
+        };
 
 // 
 // 
 //                                                      + -------------------
 // ------------------------------------------------------ After Start Array +
 
-    class AfterStartArray final {
-    public:
-        AfterStartArray& Value(Node::Value value);
-        KeyProcessor& StartDict();
-        AfterStartArray& StartArray();
-        Builder& EndArray();
+        class AfterStartArray final {
+        public:
+            AfterStartArray& Value(Node::Value value);
+            KeyProcessor& StartDict();
+            AfterStartArray& StartArray();
+            Builder& EndArray();
 
-        void SetBuilder(Builder* builder);
+            void SetBuilder(Builder* builder);
 
-    private:
-        Builder* builder_ = nullptr;
-    };
+        private:
+            Builder* builder_ = nullptr;
+        };
 
-// ------------------- Builder Itself -------------------
-//                                                      +
-//                                                      + ---------
-// ------------------------------------------------------ Builder +
+// 
+// 
+//                                                      + ------------------
+// ------------------------------------------------------ Auxiliary Struct +
 
-    struct Afters final {
-        AfterKey after_key_;
-        KeyProcessor key_processor_;
-        AfterStartArray after_start_array_;
-    };
+        struct Afters final {
+            AfterKey after_key_;
+            KeyProcessor key_processor_;
+            AfterStartArray after_start_array_;
+        };
 
-    class Builder final {
     public:
         Builder();
         Node Build();
