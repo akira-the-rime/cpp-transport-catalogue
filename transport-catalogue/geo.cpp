@@ -5,10 +5,11 @@
 #include "geo.h"
 
 namespace geo {
-// ---------------------------------- [Geography] Realization -------------------------
-//                                                                                    +
-//                                                                                    + -----------
-// ------------------------------------------------------------------------------------ Geography +
+// ------------ [Geography] Realization ------------
+//                                                 +
+//                                                 + -----------
+// ------------------------------------------------- Geography +
+
     double ComputeDistance(Coordinates from, Coordinates to) {
         using namespace std;
         const double dr = M_PI / 180.0;

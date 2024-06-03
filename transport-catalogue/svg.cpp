@@ -8,10 +8,10 @@
 namespace svg {
     using namespace std::literals;
 
-// ---------------------------------------- Realization -------------------------------
-//                                                                                    +
-//                                                                                    + --------------------
-// ------------------------------------------------------------------------------------ Auxiliary entities +
+// ------------ Realization ------------
+//                                     +
+//                                     + --------------------
+// ------------------------------------- Auxiliary entities +
 
     namespace detail {
         std::ostream& Printer::operator()([[maybe_unused]] const std::monostate& none) {
@@ -48,8 +48,9 @@ namespace svg {
 
 // 
 // 
-//                                                                                    + --------------
-// ------------------------------------------------------------------------------------ Enum classes +
+//                                     + --------------
+// ------------------------------------- Enum classes +
+
     std::ostream& operator<<(std::ostream& os, const StrokeLineCap& line_cap) {
         switch (line_cap) {
         case StrokeLineCap::BUTT:
@@ -90,8 +91,9 @@ namespace svg {
 
 //
 // 
-//                                                                                    + --------
-// ------------------------------------------------------------------------------------ Render +
+//                                     + --------
+// ------------------------------------- Render +
+
     RenderContext::RenderContext(std::ostream& out)
         : out(out) {
     }
@@ -114,8 +116,9 @@ namespace svg {
                 
 //
 //
-//                                                                                    + -----------------------
-// ------------------------------------------------------------------------------------ Abstract class Object +
+//                                     + -----------------------
+// ------------------------------------- Abstract class Object +
+
     void Object::Render(const RenderContext& context) const {
         context.RenderIndent();
         RenderObject(context);
@@ -125,8 +128,9 @@ namespace svg {
 
 //
 // 
-//                                                                                    + --------
-// ------------------------------------------------------------------------------------ Circle +
+//                                     + --------
+// ------------------------------------- Circle +
+
     Circle& Circle::SetCenter(Point center)  noexcept {
         center_ = center;
         return *this;
@@ -147,8 +151,9 @@ namespace svg {
 
 //
 // 
-//                                                                                    + ----------
-// ------------------------------------------------------------------------------------ Polyline +
+//                                     + ----------
+// ------------------------------------- Polyline +
+
     Polyline& Polyline::AddPoint(Point point) noexcept {
         std::stringstream to_parse;
 
@@ -180,8 +185,9 @@ namespace svg {
 
 //
 // 
-//                                                                                    + ------
-// ------------------------------------------------------------------------------------ Text +
+//                                     + ------
+// ------------------------------------- Text +
+
     Text& Text::SetPosition(Point pos)  noexcept {
         position_ = pos;
         return *this;
@@ -258,8 +264,9 @@ namespace svg {
 
 //
 // 
-//                                                                                    + ----------
-// ------------------------------------------------------------------------------------ Document +
+//                                     + ----------
+// ------------------------------------- Document +
+
     void Document::AddPtr(std::unique_ptr<Object>&& obj) {
         svgs_.push_back(std::move(obj));
     }

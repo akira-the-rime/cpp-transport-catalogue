@@ -1,13 +1,12 @@
-﻿#pragma once
-#include <vector>
+#pragma once
 
 #include "json.h"
 
 namespace json {
-// ------------- [JSON Builder] Definition --------------
-//                                                      +
-//                                                      + ----------------
-// ------------------------------------------------------ Builder Itself +
+// ----------- [JSON Builder] Definition ------------
+//                                                  +
+//                                                  + ----------------
+// -------------------------------------------------- Builder Itself +
 
     class Builder final {
     private:
@@ -16,8 +15,8 @@ namespace json {
 
 // 
 // 
-//                                                      + -----------
-// ------------------------------------------------------ After Key +
+//                                                  + -----------
+// -------------------------------------------------- After Key +
 
         class AfterKey final {
         public:
@@ -33,8 +32,8 @@ namespace json {
 
 // 
 // 
-//                                                      + ---------------
-// ------------------------------------------------------ Key Processor +
+//                                                  + ---------------
+// -------------------------------------------------- Key Processor +
 
         class AfterStartDict final {
         public:
@@ -49,8 +48,8 @@ namespace json {
 
 // 
 // 
-//                                                      + -------------------
-// ------------------------------------------------------ After Start Array +
+//                                                  + -------------------
+// -------------------------------------------------- After Start Array +
 
         class AfterStartArray final {
         public:
@@ -67,8 +66,8 @@ namespace json {
 
 // 
 // 
-//                                                      + ------------------
-// ------------------------------------------------------ Auxiliary Struct +
+//                                                  + ------------------
+// -------------------------------------------------- Auxiliary Struct +
 
         struct Afters final {
             AfterKey after_key_;

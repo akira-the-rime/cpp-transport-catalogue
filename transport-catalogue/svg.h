@@ -11,10 +11,11 @@
 namespace svg {
     using namespace std::literals;
 
-// ---------------------------------------- Interfaces --------------------------------
-//                                                                                    +
-//                                                                                    + ---------------------------
-// ------------------------------------------------------------------------------------ ObjectContainer Interface +
+// ------------ Interfaces ------------
+//                                    +
+//                                    + ---------------------------
+// ------------------------------------ ObjectContainer Interface +
+
     class Object;
 
     class ObjectContainer { 
@@ -33,18 +34,20 @@ namespace svg {
 
 // 
 // 
-//                                                                                    + --------------------
-// ------------------------------------------------------------------------------------ Drawable Interface +
+//                                    + --------------------
+// ------------------------------------ Drawable Interface +
+
     class Drawable {
     public:
         virtual void Draw(ObjectContainer& container) const = 0;
         virtual ~Drawable() = default;
     };
 
-// ---------------------------------------- Realization -------------------------------
-//                                                                                    +
-//                                                                                    + --------------------
-// ------------------------------------------------------------------------------------ Auxiliary entities +
+// ------------ Realization ------------
+//                                     +
+//                                     + --------------------
+// ------------------------------------- Auxiliary entities +
+
     struct Rgb final {
         uint8_t red = 0;
         uint8_t green = 0;
@@ -76,8 +79,9 @@ namespace svg {
 
 //         
 // 
-//                                                                                    + -------------------
-// ------------------------------------------------------------------------------------ Point coordinates +
+//                                     + -------------------
+// ------------------------------------- Point coordinates +
+
     struct Point final { 
         Point() = default;
 
@@ -92,8 +96,9 @@ namespace svg {
 
 //
 //                                                                                    
-//                                                                                    + --------------
-// ------------------------------------------------------------------------------------ Enum classes +
+//                                     + --------------
+// ------------------------------------- Enum classes +
+
     enum class StrokeLineCap {
         BUTT,
         ROUND,
@@ -113,8 +118,9 @@ namespace svg {
 
 //
 //
-//                                                                                    + --------
-// ------------------------------------------------------------------------------------ Render +
+//                                     + --------
+// ------------------------------------- Render +
+
     struct RenderContext final {
         RenderContext(std::ostream& out);
         RenderContext(std::ostream& out, int indent_step, int indent);
@@ -128,8 +134,9 @@ namespace svg {
 
 //
 // 
-//                                                                                    + ----------------
-// ------------------------------------------------------------------------------------ PathProperties +
+//                                     + ----------------
+// ------------------------------------- PathProperties +
+
     template <class Owner>
     class PathProps {
     public:
@@ -196,8 +203,9 @@ namespace svg {
 
 //
 // 
-//                                                                                    + -----------------------
-// ------------------------------------------------------------------------------------ Abstract class Object +
+//                                     + -----------------------
+// ------------------------------------- Abstract class Object +
+
     class Object {
     public:
         void Render(const RenderContext& context) const;
@@ -209,8 +217,9 @@ namespace svg {
 
 //
 // 
-//                                                                                    + --------
-// ------------------------------------------------------------------------------------ Circle +
+//                                     + --------
+// ------------------------------------- Circle +
+
     class Circle final : public Object, public PathProps<Circle> {
     public:
         Circle& SetCenter(Point center) noexcept;
@@ -225,8 +234,9 @@ namespace svg {
 
 //
 // 
-//                                                                                    + ----------
-// ------------------------------------------------------------------------------------ Polyline +
+//                                     + ----------
+// ------------------------------------- Polyline +
+
     class Polyline final : public Object, public PathProps<Polyline> {
     public:
         Polyline& AddPoint(Point point) noexcept;
@@ -239,8 +249,9 @@ namespace svg {
 
 //
 // 
-//                                                                                    + ------
-// ------------------------------------------------------------------------------------ Text +
+//                                     + ------
+// ------------------------------------- Text +
+
     class Text final : public Object, public PathProps<Text> {
     public:
         Text& SetPosition(Point pos) noexcept;
@@ -263,8 +274,9 @@ namespace svg {
 
 //
 // 
-//                                                                                    + ----------
-// ------------------------------------------------------------------------------------ Document +
+//                                     + ----------
+// ------------------------------------- Document +
+
     class Document final : public ObjectContainer {
     public:
         Document() = default;

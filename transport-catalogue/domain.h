@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstdint>
+#include <deque>
+#include <functional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -7,10 +10,11 @@
 #include "geo.h"
 
 namespace domain {
-// ------------------------------- [Domain Structs] Definition ------------------------
-//                                                                                    +
-//                                                                                    + --------------------
-// ------------------------------------------------------------------------------------ Bus & Stop structs +
+// ------------ [Domain Structs] Definition ------------
+//                                                     +
+//                                                     + --------------------
+// ----------------------------------------------------- Bus & Stop structs +
+
 	struct Stop final {
 		std::string name;
 		geo::Coordinates coordinates;
@@ -22,15 +26,28 @@ namespace domain {
 	struct Bus final {
 		std::string name;
 		std::vector<Stop*> stops_with_duplicates;
+		bool is_roundtrip = {};
 
 		bool operator==(std::string_view rhs) const;
 		bool operator!=(std::string_view rhs) const;
 	};
 
-//
+	struct RoutingSettings final {
+		std::uint16_t bus_wait_time = {};
+		double bus_velocity = {};
+	};
+
+	struct SpanInfo final {
+		std::size_t span_count;
+		std::deque<std::string_view>* buses = nullptr;
+	};
+
+
 // 
-//                                                                                    + --------------------
-// ------------------------------------------------------------------------------------ Bus & Stop Info +
+// 
+//                                                     + -----------------
+// ----------------------------------------------------- Bus & Stop Info +
+
 	struct BusInfo final {
 		std::string_view name;
 		bool is_found = false;
@@ -51,8 +68,9 @@ namespace domain {
 
 // 
 // 
-//                                                                                    + -------
-// ------------------------------------------------------------------------------------ Other +
+//                                                     + -------
+// ----------------------------------------------------- Other +
+
 	struct Compartor final {
 		using is_transparent = std::false_type;
 		bool operator()(const Bus* lhs, const Bus* rhs) const;

@@ -4,10 +4,10 @@
 #include "map_renderer.h"
 
 namespace map_renderer {
-// ------------------------------- [Map Renderer] Realization -------------------------
-//                                                                                    +
-//                                                                                    + ------------------
-// ------------------------------------------------------------------------------------ Sphere Projector +
+// ------------ [Map Renderer] Realization ------------
+//                                                    +
+//                                                    + ------------------
+// ---------------------------------------------------- Sphere Projector +
 
     namespace detail {
         bool IsZero(double value) {
@@ -24,8 +24,8 @@ namespace map_renderer {
 
 // 
 // 
-//                                                                                    + ----------------------
-// ------------------------------------------------------------------------------------ Map Renderer Setters +
+//                                                    + ----------------------
+// ---------------------------------------------------- Map Renderer Setters +
 
     void MapRenderer::SetSettings(Settings&& settings) {
         settings_ = std::move(settings);
@@ -49,8 +49,8 @@ namespace map_renderer {
 
 // 
 // 
-//                                                                                    + ----------------
-// ------------------------------------------------------------------------------------ Lines creating +
+//                                                    + ----------------
+// ---------------------------------------------------- Lines creating +
 
     void MapRenderer::RenderLines(const detail::SphereProjector& sphere_projector) {
         using namespace std::literals;
@@ -83,8 +83,8 @@ namespace map_renderer {
 
 // 
 // 
-//                                                                                    + --------------------
-// ------------------------------------------------------------------------------------ Line text creating +
+//                                                    + --------------------
+// ---------------------------------------------------- Line text creating +
 
     void MapRenderer::RenderLineText(const detail::SphereProjector& sphere_projector) {
         using namespace std::literals;
@@ -157,8 +157,8 @@ namespace map_renderer {
 
 // 
 // 
-//                                                                                    + -----------------
-// ------------------------------------------------------------------------------------ Circle creating +
+//                                                    + -----------------
+// ---------------------------------------------------- Circle creating +
 
     void MapRenderer::RenderCircles(const detail::SphereProjector& sphere_projector) {
         using namespace std::literals;
@@ -177,8 +177,8 @@ namespace map_renderer {
 
 // 
 // 
-//                                                                                    + ----------------------
-// ------------------------------------------------------------------------------------ Circle text creating +
+//                                                    + ----------------------
+// ---------------------------------------------------- Circle text creating +
 
     void MapRenderer::RenderCircleText(const detail::SphereProjector& sphere_projector) {
         using namespace std::literals;
@@ -210,8 +210,8 @@ namespace map_renderer {
 
 // 
 // 
-//                                                                                    + ------------------
-// ------------------------------------------------------------------------------------ Rendering Facade +
+//                                                    + ------------------
+// ---------------------------------------------------- Rendering Facade +
 
     svg::Document MapRenderer::RenderMap() {
         std::vector<geo::Coordinates> each_geo_coordinate;

@@ -3,10 +3,10 @@
 #include "json_builder.h"
 
 namespace json {
-// ------------- [JSON Builder] Realization -------------
-//                                                      +
-//                                                      + -------------------------------
-// ------------------------------------------------------ Auxiliary Classes [After Key] +
+// ------------ [JSON Builder] Realization ------------
+//                                                    +
+//                                                    + -------------------------------
+// ---------------------------------------------------- Auxiliary Classes [After Key] +
 
 	Builder::AfterStartDict& Builder::AfterKey::Value(Node::Value value) {
 			builder_->Value(std::move(value));
@@ -29,8 +29,8 @@ namespace json {
 
 // 
 // 
-//                                                      + ---------------
-// ------------------------------------------------------ Key Processor +
+//                                                    + ---------------
+// ---------------------------------------------------- Key Processor +
 
 	Builder::AfterKey& Builder::AfterStartDict::Key(std::string key) {
 		builder_->Key(std::move(key));
@@ -48,8 +48,8 @@ namespace json {
 	
 // 
 // 
-//                                                      + -------------------
-// ------------------------------------------------------ After Start Array +
+//                                                    + -------------------
+// ---------------------------------------------------- After Start Array +
 
 	Builder::AfterStartArray& Builder::AfterStartArray::Value(Node::Value value) {
 		builder_->Value(std::move(value));
@@ -76,10 +76,10 @@ namespace json {
 	}
 
 
-// ------------------- Builder Itself -------------------
-//                                                      +
-//                                                      + -----------------
-// ------------------------------------------------------ [Key] : [Value] +
+// ----------------- Builder Itself -----------------
+//                                                  +
+//                                                  + -----------------
+// -------------------------------------------------- [Key] : [Value] +
 
 	Builder::AfterKey& Builder::Key(std::string key) {
 		using namespace std::literals;
@@ -101,8 +101,8 @@ namespace json {
 
 // 
 // 
-//                                                       + ----------
-// ------------------------------------------------------ Starters +
+//                                                   + ----------
+// -------------------------------------------------- Starters +
 
 	Builder::AfterStartDict& Builder::StartDict() {
 		if (!afters_are_initialized_) {
@@ -126,8 +126,8 @@ namespace json {
 
 // 
 // 
-//                                                      + --------
-// ------------------------------------------------------ Enders +
+//                                                  + --------
+// -------------------------------------------------- Enders +
 
 	Builder& Builder::EndDict() {
 		using namespace std::literals;
@@ -144,7 +144,7 @@ namespace json {
 		using namespace std::literals;
 
 		if (!std::holds_alternative<Array>(GetCurrentValue())) {
-			throw std::logic_error("EndDict() has been called outside an array"s);
+			throw std::logic_error("EndArray() has been called outside an array"s);
 		}
 
 		nodes_stack_.pop_back();
@@ -153,8 +153,8 @@ namespace json {
 
 // 
 // 
-//                                                      + ------------------
-// ------------------------------------------------------ Builder & Getter +
+//                                                  + ------------------
+// -------------------------------------------------- Builder & Getter +
 
 	Node Builder::Build() {
 		using namespace std::literals;
@@ -172,8 +172,8 @@ namespace json {
 
 // 
 // 
-//                                                      + -------------
-// ------------------------------------------------------ Auxiliaries +
+//                                                  + -------------
+// -------------------------------------------------- Auxiliaries +
 
 	Builder::Builder()
 		: root_()

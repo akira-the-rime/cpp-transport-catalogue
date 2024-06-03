@@ -8,10 +8,11 @@
 #include <vector>
 
 namespace json {
-// ------------------------------------ [JSON] Definition -----------------------------
-//                                                                                    +
-//                                                                                    + ------
-// ------------------------------------------------------------------------------------ Node +
+// ------------ [JSON] Definition ------------
+//                                           +
+//                                           + ------
+// ------------------------------------------- Node +
+
     class Node;
 
     using Array = std::vector<Node>;
@@ -75,10 +76,10 @@ namespace json {
         throw std::logic_error("Wrong type has been requested.");
     }
 
-// --------------------------- [Storage & Main Loader] Definition ---------------------
-//                                                                                    +
-//                                                                                    + -----------------------
-// ------------------------------------------------------------------------------------ Storage & Main Loader +
+// ------------ [Storage & Main Loader] Definition ------------
+//                                                            +
+//                                                            + -----------------------
+// ------------------------------------------------------------ Storage & Main Loader +
 
     class Document final {
     public:
@@ -94,10 +95,10 @@ namespace json {
 
     Document Load(std::istream& input);
 
-// --------------------------------- [Printers] Definition ----------------------------
-//                                                                                    +
-//                                                                                    + ----------
-// ------------------------------------------------------------------------------------ Printers +
+// ------------ [Printers] Definition ------------
+//                                               +
+//                                               + ----------
+// ----------------------------------------------- Printers +
 
     void PrintString(const Document& doc, std::ostream& output);
     void PrintArray(const Document& doc, std::ostream& output);

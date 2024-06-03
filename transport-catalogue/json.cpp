@@ -1,21 +1,22 @@
 #include "json.h"
 
-using namespace std;
-
 namespace json {
-// ------------------------------------ [JSON] Realization ----------------------------
-//                                                                                    +
-//                                                                                    + -----------------
-// ------------------------------------------------------------------------------------ Inner namespace +
+    using namespace std::literals;
+
+// ------------ [JSON] Realization ------------
+//                                            +
+//                                            + -----------------
+// -------------------------------------------- Inner namespace +
+
     namespace {
-        Node LoadNode(istream& input);
+        Node LoadNode(std::istream& input);
 
-    // ----------------------------------- [Loaders] Realization --------------------------
-    //                                                                                    +
-    //                                                                                    + --------------------
-    // ------------------------------------------------------------------------------------ "E"-part Processor +
+    // ------------ [Loaders] Realization ------------
+    //                                               +
+    //                                               + --------------------
+    // ----------------------------------------------- "E"-part Processor +
 
-        Node ProcessE(istream& input, const std::string& to_convert) {
+        Node ProcessE(std::istream& input, const std::string& to_convert) {
             bool is_positive_mult;
             std::size_t multiplier = 1;
 
@@ -51,10 +52,10 @@ namespace json {
 
     // 
     // 
-    //                                                                                    + ---------------------
-    // ------------------------------------------------------------------------------------ Int & Double Loader +
+    //                                               + ---------------------
+    // ----------------------------------------------- Int & Double Loader +
 
-        Node LoadIntAndDouble(istream& input) {
+        Node LoadIntAndDouble(std::istream& input) {
             bool is_integer = true;
             std::string to_convert;
 
@@ -104,10 +105,10 @@ namespace json {
 
     // 
     // 
-    //                                                                                    + ----------------
-    // ------------------------------------------------------------------------------------ Boolean Loader +
+    //                                               + ----------------
+    // ----------------------------------------------- Boolean Loader +
 
-        Node LoadBool(istream& input) {
+        Node LoadBool(std::istream& input) {
             std::string to_check;
             const std::size_t size_of_true = 4;
 
@@ -142,10 +143,10 @@ namespace json {
 
     // 
     // 
-    //                                                                                    + ---------------
-    // ------------------------------------------------------------------------------------ String Loader +
+    //                                               + ---------------
+    // ----------------------------------------------- String Loader +
 
-        Node LoadString(istream& input) {
+        Node LoadString(std::istream& input) {
             std::string line;
 
             for (char ch = input.peek(); !input.eof(); ch = input.peek()) {
@@ -197,10 +198,10 @@ namespace json {
 
     // 
     // 
-    //                                                                                    + ------------------
-    // ------------------------------------------------------------------------------------ Nullptr_t Loader +
+    //                                               + ------------------
+    // ----------------------------------------------- Nullptr_t Loader +
 
-        Node LoadNull(istream& input) {
+        Node LoadNull(std::istream& input) {
             std::string to_check;
             const std::size_t size_of_null = 4;
 
@@ -223,10 +224,10 @@ namespace json {
 
     // 
     // 
-    //                                                                                    + --------------
-    // ------------------------------------------------------------------------------------ Array Loader +
+    //                                               + --------------
+    // ----------------------------------------------- Array Loader +
 
-        Node LoadArray(istream& input) {
+        Node LoadArray(std::istream& input) {
             Array result;
 
             char ch = '~';
@@ -247,8 +248,8 @@ namespace json {
 
     // 
     // 
-    //                                                                                    + -------------------
-    // ------------------------------------------------------------------------------------ Dictionary Loader +
+    //                                               + -------------------
+    // ----------------------------------------------- Dictionary Loader +
 
         Node LoadDict(std::istream& input) {
             Dict result;
@@ -282,10 +283,10 @@ namespace json {
 
     // 
     // 
-    //                                                                                    + -------------
-    // ------------------------------------------------------------------------------------ Node Loader +
+    //                                               + -------------
+    // ----------------------------------------------- Node Loader +
 
-        Node LoadNode(istream& input) {
+        Node LoadNode(std::istream& input) {
             char c;
             input >> c;
 
@@ -315,10 +316,10 @@ namespace json {
         }
     } // unnamed namespace
 
-// ----------------------------------- [Node] Realization -----------------------------
-//                                                                                    +
-//                                                                                    + -------------------
-// ------------------------------------------------------------------------------------ Node Constructors +
+// ------------ [Node] Realization ------------
+//                                            +
+//                                            + -------------------
+// -------------------------------------------- Node Constructors +
 
     Node::Node(Value&& other) noexcept
         : json_lib_(std::move(other)) {
@@ -336,7 +337,7 @@ namespace json {
         : json_lib_(boolean) {
     }
 
-    Node::Node(string str)
+    Node::Node(std::string str)
         : json_lib_(std::move(str)) {
     }
 
@@ -354,8 +355,8 @@ namespace json {
 
 // 
 // 
-//                                                                                    + --------------
-// ------------------------------------------------------------------------------------ "Is" methods +
+//                                            + --------------
+// -------------------------------------------- "Is" methods +
 
     bool Node::IsInt() const noexcept {
         return std::holds_alternative<int>(json_lib_);
@@ -391,8 +392,8 @@ namespace json {
 
 //
 //
-//                                                                                    + --------------
-// ------------------------------------------------------------------------------------ "As" methods +
+//                                            + --------------
+// -------------------------------------------- "As" methods +
 
     int Node::AsInt() const {
         return *Getter<int>();
@@ -415,7 +416,7 @@ namespace json {
         return *Getter<bool>();
     }
 
-    const string& Node::AsString() const {
+    const std::string& Node::AsString() const {
         return *Getter<std::string>();
     }
 
@@ -429,8 +430,8 @@ namespace json {
 
 // 
 // 
-//                                                                                    + ---------
-// ------------------------------------------------------------------------------------ Getters +
+//                                            + ---------
+// -------------------------------------------- Getters +
 
     const Node::Value& Node::GetValue() const noexcept {
         return json_lib_;
@@ -442,8 +443,8 @@ namespace json {
 
 // 
 // 
-//                                                                                    + ----------------
-// ------------------------------------------------------------------------------------ Node operators +
+//                                            + ----------------
+// -------------------------------------------- Node operators +
 
     bool Node::operator==(const Node& other) const {
         return this->json_lib_ == other.json_lib_;
@@ -453,10 +454,10 @@ namespace json {
         return this->json_lib_ != other.json_lib_;
     }
 
-// -------------------------- [Storage & Main Loader] Realization ---------------------
-//                                                                                    +
-//                                                                                    + -----------------------
-// ------------------------------------------------------------------------------------ Storage & Main Loader +
+// ------------ [Storage & Main Loader] Realization ------------
+//                                                             +
+//                                                             + -----------------------
+// ------------------------------------------------------------- Storage & Main Loader +
 
     Document::Document(Node root)
         : root_(std::move(root)) {
@@ -466,14 +467,14 @@ namespace json {
         return root_;
     }
 
-    Document Load(istream& input) {
+    Document Load(std::istream& input) {
         return Document{ LoadNode(input) };
     }
 
 // 
 // 
-//                                                                                    + --------------------
-// ------------------------------------------------------------------------------------ Document operators +
+//                                                             + --------------------
+// ------------------------------------------------------------- Document operators +
 
     bool Document::operator==(const Document& other) const {
         return this->root_ == other.root_;
@@ -483,10 +484,10 @@ namespace json {
         return this->root_ != other.root_;
     }
 
-// --------------------------------- [Printers] Realization ---------------------------
-//                                                                                    +
-//                                                                                    + ----------------
-// ------------------------------------------------------------------------------------ String printer +
+// ------------ [Printers] Realization ------------
+//                                                +
+//                                                + ----------------
+// ------------------------------------------------ String printer +
 
     void PrintString(const Document& doc, std::ostream& output) {
         output << "\"";
@@ -523,8 +524,8 @@ namespace json {
 
 // 
 // 
-//                                                                                    + ---------------
-// ------------------------------------------------------------------------------------ Array printer +
+//                                                + ---------------
+// ------------------------------------------------ Array printer +
 
     void PrintArray(const Document& doc, std::ostream& output) {
         output << "["s;
@@ -547,8 +548,8 @@ namespace json {
 
 // 
 // 
-//                                                                                    + --------------------
-// ------------------------------------------------------------------------------------ Dictionary printer +
+//                                                + --------------------
+// ------------------------------------------------ Dictionary printer +
 
     void PrintMap(const Document& doc, std::ostream& output) {
         output << "{ "s << std::endl;
@@ -580,8 +581,8 @@ namespace json {
 
 // 
 // 
-//                                                                                    + -----------------------
-// ------------------------------------------------------------------------------------ Options to be printed +
+//                                                + -----------------------
+// ------------------------------------------------ Options to be printed +
 
     void Print(const Document& doc, std::ostream& output) {
         if (doc.GetRoot().IsInt()) {

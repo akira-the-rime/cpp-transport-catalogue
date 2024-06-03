@@ -1,7 +1,6 @@
 #pragma once
 
 #include <algorithm>
-#include <deque>
 #include <set>
 
 #include "domain.h"
@@ -9,10 +8,10 @@
 #include "svg.h"
 
 namespace map_renderer {
-// -------------------------------- [Map Renderer] Definition -------------------------
-//                                                                                    +
-//                                                                                    + --------------------------------
-// ------------------------------------------------------------------------------------ Sphere Projector & Auxiliaries +
+// ------------ [Map Renderer] Definition ------------
+//                                                   +
+//                                                   + --------------------------------
+// --------------------------------------------------- Sphere Projector & Auxiliaries +
 
     namespace detail {
         inline const double EPSILON = 1e-6;
@@ -78,8 +77,8 @@ namespace map_renderer {
 
 // 
 // 
-//                                                                                    + -----------------
-// ------------------------------------------------------------------------------------ Settings struct +
+//                                                   + -----------------
+// --------------------------------------------------- Settings struct +
 
     struct Settings final {
         double width = 0.0;
@@ -97,8 +96,9 @@ namespace map_renderer {
 
 // 
 // 
-//                                                                                    + --------------
-// ------------------------------------------------------------------------------------ Map Renderer +
+//                                                   + --------------
+// --------------------------------------------------- Map Renderer +
+
 	class MapRenderer final {
 	public:
 		MapRenderer() = default;
