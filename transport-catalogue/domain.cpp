@@ -3,8 +3,8 @@
 namespace domain {
 // ------------ [Domain Structs] Realization ------------
 //                                                      +
-//                                                      + --------------------
-// ------------------------------------------------------ Bus & Stop structs +
+//                                                     + --------------------
+// ----------------------------------------------------- Stop & Bus structs +
 
 	bool Stop::operator==(std::string_view rhs) const {
 		return std::string_view(name) == rhs;
@@ -24,8 +24,8 @@ namespace domain {
 
 // 
 // 
-//                                                      + -------
-// ------------------------------------------------------ Other +
+//                                                      + -------------
+// ------------------------------------------------------ Auxiliaries +
 
 	bool Compartor::operator()(const Bus* lhs, const Bus* rhs) const {
 		return lhs->name < rhs->name;

@@ -9,13 +9,9 @@ namespace json_reader {
 //                                                   + -------------
 // --------------------------------------------------- Constructor +
 
-	JsonReader::JsonReader(catalogue::TransportCatalogue& database,
-		map_renderer::MapRenderer& renderer,
-		transport_router::TransportRouter& transport_router)
-
+	JsonReader::JsonReader(catalogue::TransportCatalogue& database, map_renderer::MapRenderer& renderer)
 		: database_(database)
-		, renderer_(renderer)
-		, transport_router_(transport_router) {
+		, renderer_(renderer) {
 	}
 
 // 
@@ -116,34 +112,6 @@ namespace json_reader {
 //
 // 
 //                                                   + ----------------
-// --------------------------------------------------- Router filling +
-
-	void JsonReader::FillRouter() {
-		const std::deque<domain::Stop>* stops = database_.GetAllStops();
-		std::thread set_stops_thread([&]() {
-			transport_router_.SetStops(stops->begin(), stops->end());
-		});
-
-		const std::deque<domain::Bus>* buses = database_.GetAllBuses();
-		std::thread set_buses_thread([&]() {
-			transport_router_.SetBuses(buses->begin(), buses->end());
-		});
-		
-		const std::unordered_map<std::pair<std::string_view, std::string_view>, std::size_t, domain::Hasher>* destinations = database_.GetDestinations();
-		std::thread set_destinatios_thread([&]() {
-			transport_router_.SetDesinations(destinations->begin(), destinations->end());
-		});
-
-		set_stops_thread.join();
-		set_buses_thread.join();
-		set_destinatios_thread.join();
-
-		transport_router_.FillRouter();
-	}
-
-//
-// 
-//                                                   + ----------------
 // --------------------------------------------------- Filling Facade +
 
 	void JsonReader::HandleBaseRequests(const json::Document& document) {
@@ -159,8 +127,6 @@ namespace json_reader {
 
 		CatalogueDestinationsFilling(stops_and_destinations);
 		CatalogueBusesFilling(buses);
-
-		FillRouter();
 	}
 
 // 
@@ -291,7 +257,7 @@ namespace json_reader {
 		using namespace std::literals;
 
 		const json::Dict& to_parse = document.GetRoot().AsMap().at("routing_settings"s).AsMap();
-		transport_router_.SetRoutingSettings(domain::RoutingSettings {
+		transport_router_ = std::make_unique<transport_router::TransportRouter>(std::ref(database_), domain::RoutingSettings {
 			.bus_wait_time = static_cast<std::uint16_t>(to_parse.at("bus_wait_time"s).AsInt()),
 			.bus_velocity = to_parse.at("bus_velocity"s).AsDouble()
 		});
@@ -376,31 +342,27 @@ namespace json_reader {
 	void JsonReader::ProcessRouteRequest(const json::Dict& to_parse, json::Builder& builder) const {
 		using namespace std::literals;
 
-		const std::size_t start = transport_router_.GetStopIndex(to_parse.at("from"s).AsString());
-		const std::size_t end = transport_router_.GetStopIndex(to_parse.at("to"s).AsString());
+		const domain::Data data = transport_router_->GetDataToBuildOptimalRoute(to_parse.at("from"s).AsString(), to_parse.at("to"s).AsString());
 
-		const auto& graph = transport_router_.GetGraph();
-		auto route = transport_router_.GetRouter()->BuildRoute(start, end);
-
-		if (route.has_value()) {
-			std::uint16_t bus_wait_time = transport_router_.GetRoutingSettings().bus_wait_time;
+		if (data.route.has_value()) {
+			std::uint16_t bus_wait_time = data.bus_wait_time;
 			std::optional<graph::VertexId> old_to;
 
 			builder.StartDict().Key("items"s).StartArray();
 
-			if (route.value().edges.size() == 1) {
+			if (data.route.value().edges.size() == 1) {
 				builder.EndArray();
 
 				builder.Key("request_id"s).Value(to_parse.at("id"s).AsInt())
-					.Key("total_time"s).Value(route.value().weight)
+					.Key("total_time"s).Value(data.route.value().weight)
 					.EndDict();
 			}
 
-			for (const auto& edge : route.value().edges) {
-				graph::Edge<double> vertices = graph.GetEdge(edge);
+			for (const auto& edge : data.route.value().edges) {
+				graph::Edge<double> vertices = data.graph.GetEdge(edge);
 
 				if (!old_to.has_value() || (vertices.from + 1 == vertices.to && old_to.value() != vertices.from)) {
-					builder.StartDict().Key("stop_name"s).Value(transport_router_.GetStopNameByIndex(vertices.from))
+					builder.StartDict().Key("stop_name"s).Value(data.graph_stops.at(vertices.from).name)
 						.Key("time"s).Value(bus_wait_time)
 						.Key("type"s).Value("Wait"s)
 						.EndDict();
@@ -408,13 +370,17 @@ namespace json_reader {
 					old_to = vertices.to;
 				}
 				else {
-					const std::string& from_name = transport_router_.GetStopNameByIndex(vertices.from);
-					const std::string& to_name = transport_router_.GetStopNameByIndex(vertices.to);
-					const domain::SpanInfo span_info = transport_router_.GetShortestSpan(from_name, to_name);
+					const std::string& from_name = data.graph_stops.at(vertices.from).name;
+					const std::string& to_name = data.graph_stops.at(vertices.to).name;
+
+					const domain::SpanInfo span_info {
+						.span_count = data.spans.at(std::make_pair(from_name, to_name)).begin()->first,
+						.buses = &data.spans.at(std::make_pair(from_name, to_name)).begin()->second
+					};
 
 					builder.StartDict().Key("bus"s).Value(std::string((*span_info.buses)[0]))
 						.Key("span_count"s).Value(static_cast<int>(span_info.span_count))
-						.Key("time"s).Value(transport_router_.GetRouter()->BuildRoute(vertices.from, vertices.to).value().weight)
+						.Key("time"s).Value(data.router->BuildRoute(vertices.from, vertices.to).value().weight)
 						.Key("type"s).Value("Bus"s)
 						.EndDict();
 				}
@@ -423,7 +389,7 @@ namespace json_reader {
 			builder.EndArray();
 
 			builder.Key("request_id"s).Value(to_parse.at("id"s).AsInt())
-				.Key("total_time"s).Value(route.value().weight)
+				.Key("total_time"s).Value(data.route.value().weight)
 				.EndDict();
 		}
 		else {
@@ -473,14 +439,13 @@ namespace json_reader {
 // --------------------------------------------------- Facade of All Requests +
 
 	json::Document JsonReader::HandleRequests(const json::Document& document) {
-		std::thread routing_settings_thread(&JsonReader::HandleRoutingSettingsRequests, &*this, std::cref(document));
 		std::thread base_requests_thread(&JsonReader::HandleBaseRequests, &*this, std::cref(document));
 		std::thread render_requests_thread(&JsonReader::HandleRenderRequests, &*this, std::cref(document));
 
-		routing_settings_thread.join();
 		base_requests_thread.join();
-		render_requests_thread.join();
+		HandleRoutingSettingsRequests(document);
 
+		render_requests_thread.join();
 		return HandleStatRequests(document);
 	}
 } // namespace input_reader

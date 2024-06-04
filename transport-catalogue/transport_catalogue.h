@@ -1,10 +1,8 @@
 #pragma once
 
 #include <cstddef>
-#include <optional>
 #include <set>
 #include <span>
-#include <utility>
 
 #include "domain.h"
 #include "graph.h"
@@ -27,9 +25,9 @@ namespace catalogue {
 		const domain::BusInfo GetBusInfo(std::string_view bus) const;
 		const domain::StopInfo GetStopInfo(std::string_view stop) const;
 
-		const std::deque<domain::Stop>* GetAllStops() const;
-		const std::unordered_map<std::pair<std::string_view, std::string_view>, std::size_t, domain::Hasher>* GetDestinations() const;
-		const std::deque<domain::Bus>* GetAllBuses() const;
+		const std::deque<domain::Stop>& GetAllStops() const;
+		const std::unordered_map<std::pair<std::string_view, std::string_view>, std::size_t, domain::Hasher>& GetDestinations() const;
+		const std::deque<domain::Bus>& GetAllBuses() const;
 
 	private:
 		size_t ComputeActualLength(std::string_view bus) const;

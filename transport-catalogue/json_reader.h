@@ -16,9 +16,7 @@ namespace json_reader {
 
 	class JsonReader final {
 	public:
-		JsonReader(catalogue::TransportCatalogue& database,
-			map_renderer::MapRenderer& renderer,
-			transport_router::TransportRouter& transport_router);
+		JsonReader(catalogue::TransportCatalogue& database, map_renderer::MapRenderer& renderer);
 
 		json::Document HandleRequests(const json::Document& document);
 
@@ -40,7 +38,6 @@ namespace json_reader {
 			std::deque<std::pair<domain::Bus, bool>>& routes;
 		};
 
-		void FillRouter();
 		void HandleBaseRequests(const json::Document& document);
 		void HandleRenderRequests(const json::Document& json_document);
 		void HandleRoutingSettingsRequests(const json::Document& json_document);
@@ -63,6 +60,6 @@ namespace json_reader {
 
 		catalogue::TransportCatalogue& database_;
 		map_renderer::MapRenderer& renderer_;
-		transport_router::TransportRouter& transport_router_;
+		std::unique_ptr<transport_router::TransportRouter> transport_router_;
 	};
 } // namespace input_reader

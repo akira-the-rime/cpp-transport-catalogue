@@ -1,5 +1,3 @@
-#include <algorithm>
-
 #include "transport_catalogue.h"
 
 namespace catalogue {
@@ -106,16 +104,16 @@ namespace catalogue {
 		return to_output;
 	}
 
-	const std::deque<domain::Stop>* TransportCatalogue::GetAllStops() const {
-		return &deque_stops_;
+	const std::deque<domain::Stop>& TransportCatalogue::GetAllStops() const {
+		return deque_stops_;
 	}
 
-	const std::unordered_map<std::pair<std::string_view, std::string_view>, std::size_t, domain::Hasher>* TransportCatalogue::GetDestinations() const {
-		return &destinations_;
+	const std::unordered_map<std::pair<std::string_view, std::string_view>, std::size_t, domain::Hasher>& TransportCatalogue::GetDestinations() const {
+		return destinations_;
 	}
 
-	const std::deque<domain::Bus>* TransportCatalogue::GetAllBuses() const {
-		return &deque_buses_;
+	const std::deque<domain::Bus>& TransportCatalogue::GetAllBuses() const {
+		return deque_buses_;
 	}
 
 	std::optional<const std::set<domain::Bus*, domain::Compartor>*> TransportCatalogue::GetBusesForStop(std::string_view stop) const {
