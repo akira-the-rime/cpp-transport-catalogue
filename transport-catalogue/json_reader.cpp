@@ -439,8 +439,8 @@ namespace json_reader {
 // --------------------------------------------------- Facade of All Requests +
 
 	json::Document JsonReader::HandleRequests(const json::Document& document) {
-		std::thread base_requests_thread(&JsonReader::HandleBaseRequests, &*this, std::cref(document));
-		std::thread render_requests_thread(&JsonReader::HandleRenderRequests, &*this, std::cref(document));
+		std::thread base_requests_thread(&JsonReader::HandleBaseRequests, this, std::cref(document));
+		std::thread render_requests_thread(&JsonReader::HandleRenderRequests, this, std::cref(document));
 
 		base_requests_thread.join();
 		HandleRoutingSettingsRequests(document);
