@@ -5,7 +5,6 @@ It requires the C++20 language standard.
 1) To use the program, parse JSON requests into a "Document" variable, using the json::Load() function. I created the json::Builder class to ensure that users cannot pass invalid JSON commands.
 2) Instantiate the catalogue::TransportCatalogue and map_renderer::MapRenderer classes.
 3) Instantiate the json_reader::JsonReader class to connect all the previously-created classes and handle the requests within the Document variable, using the HandleRequests() method.
-Tech Stack: C++, OOP, STL
 
 RU:
 Транспортный каталог.
@@ -14,4 +13,6 @@ RU:
 1) Чтобы использовать программу, распарсите JSON-запросы в переменную типа "Document" с помощью функции json::Load(). Я создал класс json::Builder, чтобы пользователь не мог передавать невалидные JSON-команды.
 2) Инстанцируйте классы catalogue::TransportCatalogue и map_renderer::MapRenderer.
 3) Затем создайте объект класса json_reader::JsonReader, чтобы связать ранее созданные классы и обработать запросы из переменной типа "Document" с помощью метода HandleRequests().
-Стек технологий: C++, ООП, STL
+
+1) Tech Stack: C++, OOP, STL
+2) Стек технологий: C++, ООП, STL
